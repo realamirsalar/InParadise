@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace InParadise.Domain.Entities
 {
     public class Villa
     {
-        public int Id { get; set; }
+        [Key] public int Id { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
         public long Price { get; set; }
