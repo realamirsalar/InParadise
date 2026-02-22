@@ -1,5 +1,15 @@
+@font-face {
+    font-family: 'shabnam';
+    src: url('../fonts/shabnam.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'pinar-bold';
+    src: url('../fonts/pinar-bold.ttf') format('truetype');
+}
 html {
-  font-size: 14px;
+    font-size: 17px;
+    direction: rtl;
+    text-align: right;
 }
 
 @media (min-width: 768px) {
@@ -18,7 +28,8 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'shabnam';
+    margin-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +39,7 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+.f-pinar {
+    font-family: 'pinar-bold';
 }

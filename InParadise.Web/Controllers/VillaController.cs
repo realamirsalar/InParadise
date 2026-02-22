@@ -14,7 +14,8 @@ namespace InParadise.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var villas = db.Villas;
+            return View(villas);
         }
     }
 }

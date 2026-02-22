@@ -1,6 +1,26 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<InParadise.Domain.Entities.Villa>
 @{
 }
-<h1>Villa View</h1>
+<h1 class="f-pinar text-primary mt-5"> لیست ویلاها </h1>
+<p class=" my-3 mb-4">در اینجا میتواند لیست ویلا ها را مشاهده کنید</p>
+<table class="table table-bordered table-striped">
+    <thead>
+    <tr>
+        <td>نام</td>
+        <td>قیمت</td>
+        <td>متراژ</td>
+        <td>ظرفیت</td>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.Sqft</td>
+                <td>@item.Occupancy</td>
+            </tr>
+        }
+    </tbody>
+</table>
