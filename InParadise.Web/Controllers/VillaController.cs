@@ -17,5 +17,10 @@ namespace InParadise.Web.Controllers
             var villas = db.Villas;
             return View(villas);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
