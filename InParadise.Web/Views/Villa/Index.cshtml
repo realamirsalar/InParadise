@@ -16,6 +16,7 @@
                 <td class="bg-secondary">قیمت</td>
                 <td class="bg-secondary">متراژ</td>
                 <td class="bg-secondary">ظرفیت</td>
+                <td class="bg-secondary">عملیات</td>
             </tr>
             </thead>
             <tbody>
@@ -26,6 +27,14 @@
                     <td>@item.Price</td>
                     <td>@item.Sqft</td>
                     <td>@item.Occupancy</td>
+                    <td>
+                        <a asp-controller="Villa" asp-action="Update" asp-route-VillaId="@item.Id" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil-square"></i> ویرایش
+                        </a>
+                        <a asp-controller="Villa" asp-action="Delete" asp-route-VillaId="@item.Id" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash-fill"></i> حذف
+                        </a>
+                    </td>
                 </tr>
             }
             </tbody>
