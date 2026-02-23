@@ -1,4 +1,5 @@
-﻿using InParadise.Infrastructure.Data;
+﻿using InParadise.Domain.Entities;
+using InParadise.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InParadise.Web.Controllers
@@ -18,9 +19,23 @@ namespace InParadise.Web.Controllers
             return View(villas);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Villa villa)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Villas.Add(villa);
+                db.SaveChanges();
+                return RedirectToAction("Index", "Villa");
+            }
+
+            return View(villa);
         }
     }
 }
