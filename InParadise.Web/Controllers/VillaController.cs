@@ -37,5 +37,17 @@ namespace InParadise.Web.Controllers
 
             return View(villa);
         }
+
+        [HttpGet]
+        public IActionResult Update(int VillaId)
+        {
+            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
+            if (villa == null)
+            {
+                return NotFound();
+            }
+
+            return View(villa);
+        }
     }
 }
