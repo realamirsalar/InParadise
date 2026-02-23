@@ -42,7 +42,7 @@ namespace InParadise.Web.Controllers
         public IActionResult Update(int VillaId)
         {
             Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
-            if (villa == null)
+            if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
             }
@@ -56,6 +56,33 @@ namespace InParadise.Web.Controllers
             if (ModelState.IsValid)
             {
                 db.Villas.Update(villa);
+                db.SaveChanges();
+                return RedirectToAction("Index", "Villa");
+            }
+
+            return View(villa);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int VillaId)
+        {
+            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
+            if (villa is null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            return View(villa);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(Villa villa)
+        {
+            Villa? dbVilla = db.Villas.SingleOrDefault(v => v.Id == villa.Id);
+
+            if (dbVilla is not null)
+            {
+                db.Villas.Remove(dbVilla);
                 db.SaveChanges();
                 return RedirectToAction("Index", "Villa");
             }
