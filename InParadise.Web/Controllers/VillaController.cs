@@ -49,5 +49,18 @@ namespace InParadise.Web.Controllers
 
             return View(villa);
         }
+
+        [HttpPost]
+        public IActionResult Update(Villa villa)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Villas.Update(villa);
+                db.SaveChanges();
+                return RedirectToAction("Index", "Villa");
+            }
+
+            return View(villa);
+        }
     }
 }
