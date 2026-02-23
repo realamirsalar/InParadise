@@ -44,7 +44,7 @@ namespace InParadise.Web.Controllers
             Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
             if (villa == null)
             {
-                return NotFound();
+                return RedirectToAction("Error", "Home");
             }
 
             return View(villa);
