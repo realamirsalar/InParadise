@@ -1,5 +1,6 @@
 ﻿using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
+using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -23,13 +24,21 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            IEnumerable<SelectListItem> villaList = db.Villas.ToList().Select(v => new SelectListItem()
+            VillaNumberVM villaNumber = new()
             {
-                Text = v.Name,
-                Value = v.Id.ToString()
-            });
-            ViewData["list"] = villaList;
-            return View();
+                VillaList = db.Villas.ToList().Select(v => new SelectListItem()
+                {
+                    Text = v.Name,
+                    Value = v.Id.ToString()
+                })
+            };
+            //IEnumerable<SelectListItem> villaList = db.Villas.ToList().Select(v => new SelectListItem()
+            //{
+            //    Text = v.Name,
+            //    Value = v.Id.ToString()
+            //});
+            //ViewData["list"] = villaList;
+            return View(villaNumber);
         }
 
         [HttpPost]

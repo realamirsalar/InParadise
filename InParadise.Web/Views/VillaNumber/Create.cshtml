@@ -1,4 +1,4 @@
-﻿@model VillaNumber
+﻿@model VillaNumberVM
 
 
 <h1 class="f-pinar text-primary text-center my-5">افزودن شماره ویلا </h1>
@@ -11,21 +11,22 @@
             @* <div asp-validation-summary="ModelOnly"></div> *@
             <div class="p-3">
                 <div class="form-floating py-1">
-                    <input asp-for="NumberOfVilla" class="form-control"/>
-                    <label asp-for="NumberOfVilla" class="mt-1"></label>
-                    <span asp-validation-for="NumberOfVilla" class="text-danger"></span>
+                    <input asp-for="VillaNumber.NumberOfVilla" class="form-control"/>
+                    <label asp-for="VillaNumber.NumberOfVilla" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.NumberOfVilla" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1">
-                    <input asp-for="SpecialDetails" class="form-control" />
-                    <label asp-for="SpecialDetails" class="mt-1"></label>
-                    <span asp-validation-for="SpecialDetails" class="text-danger"></span>
+                    <input asp-for="VillaNumber.SpecialDetails" class="form-control" />
+                    <label asp-for="VillaNumber.SpecialDetails" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.SpecialDetails" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1">
-                    <select asp-for="@Model.VillaId" asp-items="@ViewData["list"] as IEnumerable<SelectListItem>" class="form-select shadow border">
+                    @*<select asp-for="@Model.VillaId" asp-items="@ViewData["list"] as IEnumerable<SelectListItem>" class="form-select shadow border">*@
+                    <select asp-for="@Model.VillaNumber.VillaId" asp-items="@Model.VillaList" class="form-select shadow border">
                         <option disabled selected>--انتخاب ویلا--</option>
                     </select>
-                    <label asp-for="VillaId" class="mt-1"></label>
-                    <span asp-validation-for="VillaId" class="text-danger"></span>
+                    <label asp-for="VillaNumber.VillaId" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
                 </div>
                 <div class="pt-2 row">
                     <div class="col-6 col-md-3">
