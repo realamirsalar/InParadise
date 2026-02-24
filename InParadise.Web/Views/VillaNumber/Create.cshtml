@@ -11,23 +11,21 @@
             @* <div asp-validation-summary="ModelOnly"></div> *@
             <div class="p-3">
                 <div class="form-floating py-1">
-                    <input asp-for="NumberOfVilla" class="form-control" />
+                    <input asp-for="NumberOfVilla" class="form-control"/>
                     <label asp-for="NumberOfVilla" class="mt-1"></label>
-                    <span asp-validation-for="NumberOfVilla" class="text-danger">
-                    </span>
+                    <span asp-validation-for="NumberOfVilla" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1">
                     <input asp-for="SpecialDetails" class="form-control" />
                     <label asp-for="SpecialDetails" class="mt-1"></label>
-                    <span asp-validation-for="SpecialDetails" class="text-danger">
-                    </span>
+                    <span asp-validation-for="SpecialDetails" class="text-danger"></span>
                 </div>
                 <div class="form-floating py-1">
-                    <input asp-for="VillaId" class="form-control" />
+                    <select asp-for="@Model.VillaId" asp-items="@ViewData["list"] as IEnumerable<SelectListItem>" class="form-select shadow border">
+                        <option disabled selected>--انتخاب ویلا--</option>
+                    </select>
                     <label asp-for="VillaId" class="mt-1"></label>
-                    <span asp-validation-for="VillaId" class="text-danger">
-
-                    </span>
+                    <span asp-validation-for="VillaId" class="text-danger"></span>
                 </div>
                 <div class="pt-2 row">
                     <div class="col-6 col-md-3">
