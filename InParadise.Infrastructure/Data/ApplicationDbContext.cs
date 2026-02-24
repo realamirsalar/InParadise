@@ -13,6 +13,7 @@ namespace InParadise.Infrastructure.Data
         }
 
         public DbSet<Villa> Villas { get; set; }
+        public DbSet<VillaNumber> VillaNumbers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +53,53 @@ namespace InParadise.Infrastructure.Data
                     Price = 400,
                     Sqft = 750,
                 });
+            modelBuilder.Entity<VillaNumber>().HasData(
+                new VillaNumber()
+                {
+                    NumberOfVilla = 101,
+                    VillaId = 1
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 102,
+                    VillaId = 1
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 103,
+                    VillaId = 1
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 201,
+                    VillaId = 2
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 202,
+                    VillaId = 2
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 203,
+                    VillaId = 2
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 301,
+                    VillaId = 3
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 302,
+                    VillaId = 3
+                },
+                new VillaNumber()
+                {
+                    NumberOfVilla = 303,
+                    VillaId = 3
+                }
+            );
         }
     }
 }
