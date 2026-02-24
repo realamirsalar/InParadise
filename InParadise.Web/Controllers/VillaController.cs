@@ -32,9 +32,11 @@ namespace InParadise.Web.Controllers
             {
                 db.Villas.Add(villa);
                 db.SaveChanges();
+                TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
 
+            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
             return View(villa);
         }
 
@@ -57,9 +59,11 @@ namespace InParadise.Web.Controllers
             {
                 db.Villas.Update(villa);
                 db.SaveChanges();
+                TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "Villa");
             }
 
+            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
             return View(villa);
         }
 
@@ -84,9 +88,11 @@ namespace InParadise.Web.Controllers
             {
                 db.Villas.Remove(dbVilla);
                 db.SaveChanges();
+                TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "Villa");
             }
 
+            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
             return View(villa);
         }
     }
