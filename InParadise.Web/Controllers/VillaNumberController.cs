@@ -43,19 +43,30 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(VillaNumber villaNumber)
+        public IActionResult Create(VillaNumberVM obj)
         {
             //ModelState.Remove("Villa");
-            if (ModelState.IsValid)
+            bool roomIsExist = db.VillaNumbers.Any(v => v.NumberOfVilla == obj.VillaNumber.NumberOfVilla);
+
+            if (ModelState.IsValid && !roomIsExist)
             {
-                db.VillaNumbers.Add(villaNumber);
+                //db.VillaNumbers.Add(villaNumber);
                 db.SaveChanges();
                 TempData["success"] = "شماره ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "VillaNumber");
             }
 
-            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(villaNumber);
+            if (roomIsExist)
+            {
+                TempData["error"] = "شماره ویلایی قبلا با این شماره ثبت شده است!";
+            }
+
+            obj.VillaList = db.Villas.ToList().Select(v => new SelectListItem()
+            {
+                Text = v.Name,
+                Value = v.Id.ToString()
+            });
+            return View(obj);
         }
 
         [HttpGet]
