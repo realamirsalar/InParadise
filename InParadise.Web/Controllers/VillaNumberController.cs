@@ -26,18 +26,19 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Villa villa)
+        public IActionResult Create(VillaNumber villaNumber)
         {
+            //ModelState.Remove("Villa");
             if (ModelState.IsValid)
             {
-                db.Villas.Add(villa);
+                db.VillaNumbers.Add(villaNumber);
                 db.SaveChanges();
-                TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
+                TempData["success"] = "شماره ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
 
             TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(villa);
+            return View(villaNumber);
         }
 
         [HttpGet]
