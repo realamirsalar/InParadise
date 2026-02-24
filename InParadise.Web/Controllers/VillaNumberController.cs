@@ -34,7 +34,7 @@ namespace InParadise.Web.Controllers
                 db.VillaNumbers.Add(villaNumber);
                 db.SaveChanges();
                 TempData["success"] = "شماره ویلای شما با موفقیت ثبت گردید!";
-                return RedirectToAction("Index", "Villa");
+                return RedirectToAction("Index", "VillaNumber");
             }
 
             TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
