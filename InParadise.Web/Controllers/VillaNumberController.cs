@@ -3,6 +3,7 @@ using InParadise.Infrastructure.Data;
 using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace InParadise.Web.Controllers
 {
@@ -17,7 +18,7 @@ namespace InParadise.Web.Controllers
 
         public IActionResult Index()
         {
-            var villaNumbers = db.VillaNumbers;
+            var villaNumbers = db.VillaNumbers.Include(v => v.Villa);
             return View(villaNumbers);
         }
 
