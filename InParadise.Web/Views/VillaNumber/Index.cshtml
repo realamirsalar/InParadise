@@ -1,0 +1,41 @@
+﻿@model IEnumerable<VillaNumber>
+@{
+}
+<h1 class="f-pinar text-primary text-center my-5"> لیست شماره ویلاها </h1>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <p class=" my-2">در اینجا میتواند لیست شماره ویلا ها را مشاهده کنید</p>
+        <a class="btn btn-primary" asp-controller="VillaNumber" asp-action="Create"><i class="bi bi-plus-circle fs-5 pe-2"></i>افزودن شماره ویلای جدید</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td class="bg-secondary">نام ویلا</td>
+                    <td class="bg-secondary">توضیح</td>
+                    <td class="bg-secondary">شماره ویلا</td>
+                    <td class="bg-secondary">عملیات</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Villa.Name</td>
+                        <td>@item.SpecialDetails</td>
+                        <td>@item.NumberOfVilla</td>
+                        <td>
+                            <a asp-controller="VillaNumber" asp-action="Update" asp-route-VillaId="@item.NumberOfVilla" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil-square"></i> ویرایش
+                            </a>
+                            <a asp-controller="VillaNumber" asp-action="Delete" asp-route-VillaId="@item.NumberOfVilla" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash-fill"></i> حذف
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
