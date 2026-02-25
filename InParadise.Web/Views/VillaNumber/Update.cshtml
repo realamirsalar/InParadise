@@ -1,0 +1,46 @@
+﻿@model VillaNumberVM
+
+
+<h1 class="f-pinar text-primary text-center my-5">ویرایش شماره ویلا </h1>
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <p class=" my-2">در اینجا میتواند شماره ویلای را ویرایش کنید</p>
+    </div>
+    <div class="card-body">
+        <form method="post" class="row">
+            <div class="p-3">
+                <input asp-for="VillaNumber.NumberOfVilla" hidden />
+                <div class="form-floating py-1">
+                    <input asp-for="VillaNumber.NumberOfVilla" disabled class="form-control"/>
+                    <label asp-for="VillaNumber.NumberOfVilla" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.NumberOfVilla" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1">
+                    <input asp-for="VillaNumber.SpecialDetails" class="form-control"/>
+                    <label asp-for="VillaNumber.SpecialDetails" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.SpecialDetails" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-1">
+                    <select asp-for="@Model.VillaNumber.VillaId" asp-items="@Model.VillaList" class="form-select shadow border">
+                        <option disabled selected>--انتخاب ویلا--</option>
+                    </select>
+                    <label asp-for="VillaNumber.VillaId" class="mt-1"></label>
+                    <span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
+                </div>
+                <div class="pt-2 row">
+                    <div class="col-6 col-md-3">
+                        <button class="btn btn-primary w-100" type="submit">
+                            ویرایش ویلا <i class="bi bi-pencil-square fs-6 pe-2"></i>
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="VillaNumber" asp-action="Index" class="btn btn-secondary w-100">
+                            بازگشت <i class="bi bi-x-circle fs-6 pe-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

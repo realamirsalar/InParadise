@@ -70,30 +70,42 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Update(int VillaId)
+        public IActionResult Update(int VillaNumberId)
         {
-            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
-            if (villa is null)
+            VillaNumberVM villaNumber = new()
+            {
+                VillaList = db.Villas.ToList().Select(v => new SelectListItem()
+                {
+                    Text = v.Name,
+                    Value = v.Id.ToString()
+                }),
+                VillaNumber = db.VillaNumbers.Find(VillaNumberId)
+            };
+            if (villaNumber is null)
             {
                 return RedirectToAction("Error", "Home");
             }
 
-            return View(villa);
+            return View(villaNumber);
         }
 
         [HttpPost]
-        public IActionResult Update(Villa villa)
+        public IActionResult Update(VillaNumberVM villaNumberVM)
         {
             if (ModelState.IsValid)
             {
-                db.Villas.Update(villa);
+                db.VillaNumbers.Update(villaNumberVM.VillaNumber);
                 db.SaveChanges();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
-                return RedirectToAction("Index", "Villa");
+                return RedirectToAction("Index", "VillaNumber");
             }
 
-            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(villa);
+            villaNumberVM.VillaList = db.Villas.ToList().Select(v => new SelectListItem()
+            {
+                Text = v.Name,
+                Value = v.Id.ToString()
+            });
+            return View(villaNumberVM);
         }
 
         [HttpGet]
