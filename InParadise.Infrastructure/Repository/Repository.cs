@@ -66,6 +66,11 @@ namespace InParadise.Infrastructure.Repository
             this.dbSet.Add(entity);
         }
 
+        public bool Any(Expression<Func<T, bool>> filter)
+        {
+            return dbSet.Any(filter);
+        }
+
         public void Delete(T entity)
         {
             this.dbSet.Remove(entity);

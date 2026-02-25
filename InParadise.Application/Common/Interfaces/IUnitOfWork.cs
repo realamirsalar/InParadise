@@ -7,6 +7,7 @@ namespace InParadise.Application.Common.Interfaces
     public interface IUnitOfWork
     {
         public IVillaRepository VillaRepository { get; }
+        public IVillaNumberRepository VillaNumberRepository { get; }
         void Save();
     }
 }

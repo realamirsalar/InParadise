@@ -14,9 +14,11 @@ namespace InParadise.Infrastructure.Repository
         {
             _db = db;
             VillaRepository = new VillaRepository(_db);
+            VillaNumberRepository = new VillaNumberRepository(_db);
         }
 
         public IVillaRepository VillaRepository { get; }
+        public IVillaNumberRepository VillaNumberRepository { get; }
 
         public void Save()
         {
