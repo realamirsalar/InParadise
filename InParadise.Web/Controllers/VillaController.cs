@@ -1,4 +1,5 @@
-﻿using InParadise.Domain.Entities;
+﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,16 +7,16 @@ namespace InParadise.Web.Controllers
 {
     public class VillaController : Controller
     {
-        private readonly ApplicationDbContext db;
+        private readonly IVillaRepository _villaRepo;
 
-        public VillaController(ApplicationDbContext _db)
+        public VillaController(IVillaRepository villaRepo)
         {
-            db = _db;
+            _villaRepo = villaRepo;
         }
 
         public IActionResult Index()
         {
-            var villas = db.Villas;
+            var villas = _villaRepo.GetAll();
             return View(villas);
         }
 
@@ -30,8 +31,8 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Villas.Add(villa);
-                db.SaveChanges();
+                _villaRepo.Insert(villa);
+                _villaRepo.Save();
                 TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -43,7 +44,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Update(int VillaId)
         {
-            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
+            Villa? villa = _villaRepo.Get(v => v.Id == VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -57,8 +58,8 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Villas.Update(villa);
-                db.SaveChanges();
+                _villaRepo.Update(villa);
+                _villaRepo.Save();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -70,7 +71,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Delete(int VillaId)
         {
-            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
+            Villa? villa = _villaRepo.Get(v => v.Id == VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -82,12 +83,12 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa villa)
         {
-            Villa? dbVilla = db.Villas.SingleOrDefault(v => v.Id == villa.Id);
+            Villa? dbVilla = _villaRepo.Get(v => v.Id == villa.Id);
 
             if (dbVilla is not null)
             {
-                db.Villas.Remove(dbVilla);
-                db.SaveChanges();
+                _villaRepo.Delete(dbVilla);
+                _villaRepo.Save();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "Villa");
             }
