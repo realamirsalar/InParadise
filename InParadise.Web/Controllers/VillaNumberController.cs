@@ -109,32 +109,41 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Delete(int VillaId)
+        public IActionResult Delete(int VillaNumberId)
         {
-            Villa? villa = db.Villas.SingleOrDefault(v => v.Id == VillaId);
-            if (villa is null)
+            VillaNumberVM villaNumber = new()
+            {
+                VillaList = db.Villas.ToList().Select(v => new SelectListItem()
+                {
+                    Text = v.Name,
+                    Value = v.Id.ToString()
+                }),
+                VillaNumber = db.VillaNumbers.Find(VillaNumberId)
+            };
+            if (villaNumber is null)
             {
                 return RedirectToAction("Error", "Home");
             }
 
-            return View(villa);
+            return View(villaNumber);
         }
 
         [HttpPost]
-        public IActionResult Delete(Villa villa)
+        public IActionResult Delete(VillaNumberVM villaNuberNumberVm)
         {
-            Villa? dbVilla = db.Villas.SingleOrDefault(v => v.Id == villa.Id);
+            VillaNumber? dbVillanumber =
+                db.VillaNumbers.SingleOrDefault(v => v.NumberOfVilla == villaNuberNumberVm.VillaNumber.NumberOfVilla);
 
-            if (dbVilla is not null)
+            if (dbVillanumber is not null)
             {
-                db.Villas.Remove(dbVilla);
+                db.VillaNumbers.Remove(dbVillanumber);
                 db.SaveChanges();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
-                return RedirectToAction("Index", "Villa");
+                return RedirectToAction("Index", "VillaNumber");
             }
 
             TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(villa);
+            return View();
         }
     }
 }
