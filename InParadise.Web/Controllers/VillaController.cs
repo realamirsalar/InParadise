@@ -32,7 +32,7 @@ namespace InParadise.Web.Controllers
             if (ModelState.IsValid)
             {
                 _UnitOfWork.VillaRepository.Insert(villa);
-                _UnitOfWork.VillaRepository.Save();
+                _UnitOfWork.Save();
                 TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -59,7 +59,7 @@ namespace InParadise.Web.Controllers
             if (ModelState.IsValid)
             {
                 _UnitOfWork.VillaRepository.Update(villa);
-                _UnitOfWork.VillaRepository.Save();
+                _UnitOfWork.Save();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -88,7 +88,7 @@ namespace InParadise.Web.Controllers
             if (dbVilla is not null)
             {
                 _UnitOfWork.VillaRepository.Delete(dbVilla);
-                _UnitOfWork.VillaRepository.Save();
+                _UnitOfWork.Save();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "Villa");
             }

@@ -18,11 +18,6 @@ namespace InParadise.Infrastructure.Repository
             this._db = db;
         }
 
-        public void Save()
-        {
-            _db.SaveChanges();
-        }
-
         public void Update(Villa entity)
         {
             _db.Update(entity);
