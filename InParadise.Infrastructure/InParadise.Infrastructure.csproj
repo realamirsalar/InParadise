@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InParadise.Application\InParadise.Application.csproj" />
-    <ProjectReference Include="..\InParadise.Domain\InParadise.Domain.csproj" />
   </ItemGroup>
 
 </Project>
