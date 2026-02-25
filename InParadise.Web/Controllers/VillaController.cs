@@ -7,16 +7,16 @@ namespace InParadise.Web.Controllers
 {
     public class VillaController : Controller
     {
-        private readonly IVillaRepository _villaRepo;
+        private readonly IUnitOfWork _UnitOfWork;
 
-        public VillaController(IVillaRepository villaRepo)
+        public VillaController(IUnitOfWork unitOfWork)
         {
-            _villaRepo = villaRepo;
+            _UnitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            var villas = _villaRepo.GetAll();
+            var villas = _UnitOfWork.VillaRepository.GetAll();
             return View(villas);
         }
 
@@ -31,8 +31,8 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _villaRepo.Insert(villa);
-                _villaRepo.Save();
+                _UnitOfWork.VillaRepository.Insert(villa);
+                _UnitOfWork.VillaRepository.Save();
                 TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -44,7 +44,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Update(int VillaId)
         {
-            Villa? villa = _villaRepo.Get(v => v.Id == VillaId);
+            Villa? villa = _UnitOfWork.VillaRepository.Get(v => v.Id == VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -58,8 +58,8 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _villaRepo.Update(villa);
-                _villaRepo.Save();
+                _UnitOfWork.VillaRepository.Update(villa);
+                _UnitOfWork.VillaRepository.Save();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -71,7 +71,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Delete(int VillaId)
         {
-            Villa? villa = _villaRepo.Get(v => v.Id == VillaId);
+            Villa? villa = _UnitOfWork.VillaRepository.Get(v => v.Id == VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -83,12 +83,12 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa villa)
         {
-            Villa? dbVilla = _villaRepo.Get(v => v.Id == villa.Id);
+            Villa? dbVilla = _UnitOfWork.VillaRepository.Get(v => v.Id == villa.Id);
 
             if (dbVilla is not null)
             {
-                _villaRepo.Delete(dbVilla);
-                _villaRepo.Save();
+                _UnitOfWork.VillaRepository.Delete(dbVilla);
+                _UnitOfWork.VillaRepository.Save();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "Villa");
             }
