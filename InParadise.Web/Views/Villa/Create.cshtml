@@ -7,7 +7,7 @@
         <p class=" my-2">در اینجا میتواند ویلای جدید را اضافه کنید</p>
     </div>
     <div class="card-body">
-        <form method="post" class="row">
+        <form method="post" class="row" enctype="multipart/form-data">
             @* <div asp-validation-summary="ModelOnly"></div> *@
             <div class="p-3">
                 <div class="form-floating py-1">
@@ -43,9 +43,10 @@
 
                     </span>
                 </div>
-                <div class="form-floating py-1">
-                    <input asp-for="ImageUrl" class="form-control"/>
-                    <label asp-for="ImageUrl" class="mt-1">تصویر ویلا</label>
+                <div class=" py-1">
+                    <input asp-for="ImageUrl" hidden class="form-control" />
+                    <label asp-for="ImageUrl" class="my-1">تصویر ویلا</label>
+                    <input asp-for="Image" class="form-control my-1"/>
                     <span asp-validation-for="ImageUrl" class="text-danger">
 
                     </span>

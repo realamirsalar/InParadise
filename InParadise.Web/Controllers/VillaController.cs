@@ -8,10 +8,12 @@ namespace InParadise.Web.Controllers
     public class VillaController : Controller
     {
         private readonly IUnitOfWork _UnitOfWork;
+        private readonly IWebHostEnvironment _WebHostEnvironment;
 
-        public VillaController(IUnitOfWork unitOfWork)
+        public VillaController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _UnitOfWork = unitOfWork;
+            _WebHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -31,6 +33,23 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (villa.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                    string imagePath = Path.Combine(_WebHostEnvironment.WebRootPath, @"images\Villa");
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    {
+                        villa.Image.CopyTo(fileStream);
+                    }
+
+                    villa.ImageUrl = @"\images\Villa\" + fileName;
+                }
+                else
+                {
+                    villa.ImageUrl = "https://placehold.co/600x400";
+                }
+
                 _UnitOfWork.VillaRepository.Insert(villa);
                 _UnitOfWork.Save();
                 TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
