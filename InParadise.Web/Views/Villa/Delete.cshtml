@@ -9,6 +9,7 @@
     <div class="card-body">
         <form method="post" class="row">
             <input asp-for="Id" hidden />
+            <div class="col-10">
             <div class="p-3">
                 <div class="form-floating py-1">
                     <input asp-for="Name" disabled class="form-control" />
@@ -46,6 +47,10 @@
                         </a>
                     </div>
                 </div>
+            </div>
+            </div>
+            <div class="col-2">
+                <img src="@Model.ImageUrl" class="w-100 border border-1 border-light rounded " />
             </div>
         </form>
 

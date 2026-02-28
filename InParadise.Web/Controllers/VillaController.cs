@@ -130,6 +130,16 @@ namespace InParadise.Web.Controllers
 
             if (dbVilla is not null)
             {
+                if (!String.IsNullOrEmpty(dbVilla.ImageUrl))
+                {
+                    string oldPath = Path.Combine(_WebHostEnvironment.WebRootPath, dbVilla.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        System.IO.File.Delete(oldPath);
+                    }
+                }
+
                 _UnitOfWork.VillaRepository.Delete(dbVilla);
                 _UnitOfWork.Save();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
