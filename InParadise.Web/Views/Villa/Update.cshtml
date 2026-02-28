@@ -7,62 +7,69 @@
         <p class=" my-2">در اینجا میتواند اطلاعات ویلا را ویرایش کنید</p>
     </div>
     <div class="card-body">
-        <form method="post" class="row">
+        <form method="post" class="row" enctype="multipart/form-data">
             <input asp-for="Id" hidden/>
-            <div class="p-3">
-                <div class="form-floating py-1">
-                    <input asp-for="Name" class="form-control"/>
-                    <label asp-for="Name" class="mt-1">نام ویلا</label>
-                    <span asp-validation-for="Name" class="text-danger">
-                    </span>
-                </div>
-                <div class="form-floating py-1">
-                    <input asp-for="Description" class="form-control"/>
-                    <label asp-for="Description" class="mt-1">توضیحات</label>
-                    <span asp-validation-for="Description" class="text-danger">
-                    </span>
-                </div>
-                <div class="form-floating py-1">
-                    <input asp-for="Price" class="form-control"/>
-                    <label asp-for="Price" class="mt-1">قیمت ویلا</label>
-                    <span asp-validation-for="Price" class="text-danger">
-
-                    </span>
-                </div>
-                <div class="form-floating py-1">
-                    <input asp-for="Sqft" class="form-control"/>
-                    <label asp-for="Sqft" class="mt-1">متراژ ویلا</label>
-                    <span asp-validation-for="Sqft" class="text-danger">
-
-                    </span>
-                </div>
-                <div class="form-floating py-1">
-                    <input asp-for="Occupancy" class="form-control"/>
-                    <label asp-for="Occupancy" class="mt-1">ظرفیت ویلا</label>
-                    <span asp-validation-for="Occupancy" class="text-danger">
-
-                    </span>
-                </div>
-                <div class="form-floating py-1">
-                    <input asp-for="ImageUrl" class="form-control"/>
-                    <label asp-for="ImageUrl" class="mt-1">تصویر ویلا</label>
-                    <span asp-validation-for="ImageUrl" class="text-danger">
-
-                    </span>
-                </div>
-                <div class="pt-2 row">
-                    <div class="col-6 col-md-3">
-                        <button class="btn btn-primary w-100" type="submit">
-                            ویرایش ویلا <i class="bi bi-plus-circle fs-6 pe-2"></i>
-                        </button>
+            <div class="col-10">
+                <div class="p-3">
+                    <div class="form-floating py-1">
+                        <input asp-for="Name" class="form-control" />
+                        <label asp-for="Name" class="mt-1">نام ویلا</label>
+                        <span asp-validation-for="Name" class="text-danger">
+                        </span>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <a asp-controller="Villa" asp-action="Index" class="btn btn-secondary w-100">
-                            بازگشت <i class="bi bi-x-circle fs-6 pe-2"></i>
-                        </a>
+                    <div class="form-floating py-1">
+                        <input asp-for="Description" class="form-control" />
+                        <label asp-for="Description" class="mt-1">توضیحات</label>
+                        <span asp-validation-for="Description" class="text-danger">
+                        </span>
+                    </div>
+                    <div class="form-floating py-1">
+                        <input asp-for="Price" class="form-control" />
+                        <label asp-for="Price" class="mt-1">قیمت ویلا</label>
+                        <span asp-validation-for="Price" class="text-danger">
+
+                        </span>
+                    </div>
+                    <div class="form-floating py-1">
+                        <input asp-for="Sqft" class="form-control" />
+                        <label asp-for="Sqft" class="mt-1">متراژ ویلا</label>
+                        <span asp-validation-for="Sqft" class="text-danger">
+
+                        </span>
+                    </div>
+                    <div class="form-floating py-1">
+                        <input asp-for="Occupancy" class="form-control" />
+                        <label asp-for="Occupancy" class="mt-1">ظرفیت ویلا</label>
+                        <span asp-validation-for="Occupancy" class="text-danger">
+
+                        </span>
+                    </div>
+                    <div class="form-floating py-1">
+                        <input asp-for="ImageUrl" hidden class="form-control" />
+                        <label asp-for="ImageUrl" class="my-1">تصویر ویلا</label>
+                        <input asp-for="Image" class="form-control my-1"/>
+                        <span asp-validation-for="ImageUrl" class="text-danger">
+
+                        </span>
+                    </div>
+                    <div class="pt-2 row">
+                        <div class="col-6 col-md-3">
+                            <button class="btn btn-primary w-100" type="submit">
+                                ویرایش ویلا <i class="bi bi-plus-circle fs-6 pe-2"></i>
+                            </button>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a asp-controller="Villa" asp-action="Index" class="btn btn-secondary w-100">
+                                بازگشت <i class="bi bi-x-circle fs-6 pe-2"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-2">
+                <img src="@Model.ImageUrl" class="w-100 border border-1 border-light rounded "/>
+            </div>
+            
         </form>
 
     </div>

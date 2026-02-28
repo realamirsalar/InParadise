@@ -77,6 +77,30 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (villa.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                    string imagePath = Path.Combine(_WebHostEnvironment.WebRootPath, @"images\Villa");
+
+                    if (!String.IsNullOrEmpty(villa.ImageUrl))
+                    {
+                        string oldPath = Path.Combine(_WebHostEnvironment.WebRootPath, villa.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldPath))
+                        {
+                            System.IO.File.Delete(oldPath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    {
+                        villa.Image.CopyTo(fileStream);
+                    }
+
+                    villa.ImageUrl = @"\images\Villa\" + fileName;
+                }
+
+
                 _UnitOfWork.VillaRepository.Update(villa);
                 _UnitOfWork.Save();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
