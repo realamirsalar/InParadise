@@ -15,12 +15,12 @@ namespace InParadise.Infrastructure.Repository
             _db = db;
             VillaRepository = new VillaRepository(_db);
             VillaNumberRepository = new VillaNumberRepository(_db);
-            Amenity = new AmenityRepository(_db);
+            AmenityRepository = new AmenityRepository(_db);
         }
 
         public IVillaRepository VillaRepository { get; }
         public IVillaNumberRepository VillaNumberRepository { get; }
-        public IAmenity Amenity { get; set; }
+        public IAmenity AmenityRepository { get; set; }
 
         public void Save()
         {

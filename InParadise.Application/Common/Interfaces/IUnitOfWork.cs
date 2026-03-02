@@ -8,7 +8,7 @@ namespace InParadise.Application.Common.Interfaces
     {
         public IVillaRepository VillaRepository { get; }
         public IVillaNumberRepository VillaNumberRepository { get; }
-        public IAmenity Amenity { get; set; }
+        public IAmenity AmenityRepository { get; set; }
         void Save();
     }
 }
