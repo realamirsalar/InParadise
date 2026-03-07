@@ -28,17 +28,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">صفحه اصلی</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">حریم خصوصی</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="villa" asp-action="Index">ویلا ها</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="VillaNumber" asp-action="Index">شماره ویلا ها</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Amenity" asp-action="Index">امکانات رفاهی</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">بخش مدیریت</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="villa" asp-action="Index">ویلا ها</a></li>
+                                <li><a class="dropdown-item" asp-controller="VillaNumber" asp-action="Index">شماره ویلا ها</a></li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li><a class="dropdown-item" asp-controller="Amenity" asp-action="Index"> امکانات رفاهی</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -58,7 +55,7 @@
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
