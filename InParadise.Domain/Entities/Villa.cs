@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace InParadise.Domain.Entities
 {
@@ -19,5 +20,6 @@ namespace InParadise.Domain.Entities
         public string? ImageUrl { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdateDate { get; set; }
+        [ValidateNever] public IEnumerable<Amenity> VillaAmenity { get; set; }
     }
 }

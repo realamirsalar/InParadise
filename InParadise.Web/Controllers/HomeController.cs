@@ -1,21 +1,29 @@
-using System.Diagnostics;
+using InParadise.Application.Common.Interfaces;
 using InParadise.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using InParadise.Web.ViewModels;
 
 namespace InParadise.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _UnitOfWork;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IUnitOfWork unitOfWork)
         {
-            _logger = logger;
+            _UnitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            return View();
+            HomeVM homeVm = new HomeVM()
+            {
+                Villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity"),
+                Nights = 1,
+                ChechInDate = DateOnly.FromDateTime(DateTime.Now),
+            };
+            return View(homeVm);
         }
 
         public IActionResult Privacy()
