@@ -1,12 +1,13 @@
-﻿using InParadise.Domain.Entities;
+﻿using System.Collections;
+using InParadise.Domain.Entities;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace InParadise.Web.ViewModels
 {
-    public class VillaNumberVM
+    public class AmenityVM
     {
-        public VillaNumber? VillaNumber { get; set; }
+        public Amenity? Amenity { get; set; }
         [ValidateNever] public IEnumerable<SelectListItem>? VillaList { get; set; }
     }
 }
