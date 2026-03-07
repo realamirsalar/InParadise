@@ -1,7 +1,9 @@
 ﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Repository;
+using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
 
 namespace InParadise.Web.Controllers
@@ -17,79 +19,113 @@ namespace InParadise.Web.Controllers
 
         public IActionResult Index()
         {
-            var amenity = _unitOfWork.AmenityRepository.GetAll();
+            var amenity = _unitOfWork.AmenityRepository.GetAll(includeProperties: "Villa");
             return View(amenity);
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            AmenityVM amenityVM = new AmenityVM()
+            {
+                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                })
+            };
+            return View(amenityVM);
         }
 
         [HttpPost]
-        public IActionResult Create(Amenity amenity)
+        public IActionResult Create(AmenityVM amenityVM)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.AmenityRepository.Insert(amenity);
+                _unitOfWork.AmenityRepository.Insert(amenityVM.Amenity);
                 _unitOfWork.Save();
-                TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
+                TempData["success"] = "امکان رفاهی ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction(nameof(Index));
             }
 
+            amenityVM.VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
+            });
             TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(amenity);
+            return View(amenityVM);
         }
 
         [HttpGet]
         public IActionResult Update(int amenityId)
         {
-            Amenity? amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId);
-            if (amenity is null)
+            AmenityVM amenityVM = new AmenityVM
+            {
+                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                }),
+                Amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId)
+            };
+            if (amenityVM.Amenity == null)
             {
                 return RedirectToAction("Error", "Home");
             }
 
-            return View(amenity);
+            return View(amenityVM);
         }
 
         [HttpPost]
-        public IActionResult Update(Amenity amenity)
+        public IActionResult Update(AmenityVM amenityVM)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.AmenityRepository.Update(amenity);
+                _unitOfWork.AmenityRepository.Update(amenityVM.Amenity);
                 _unitOfWork.Save();
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction(nameof(Index));
             }
 
+            amenityVM.VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
+            });
             TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View();
+            return View(amenityVM);
         }
 
         [HttpGet]
         public IActionResult Delete(int amenityId)
         {
-            Amenity? amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId);
-            if (amenity is null)
+            AmenityVM? amenityVM = new AmenityVM()
+            {
+                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                }),
+                Amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId)
+            };
+            if (amenityVM.Amenity is null)
             {
                 return RedirectToAction("Error", "Home");
             }
 
-            return View(amenity);
+            return View(amenityVM);
         }
 
         [HttpPost]
-        public IActionResult Delete(Amenity amenity)
+        public IActionResult Delete(AmenityVM amenityVM)
         {
-            Amenity? Amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenity.Id);
-            if (Amenity is not null)
+            Amenity? amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityVM.Amenity.Id);
+            if (amenity is not null)
             {
-                _unitOfWork.AmenityRepository.Delete(Amenity);
+                _unitOfWork.AmenityRepository.Delete(amenity);
                 _unitOfWork.Save();
-                TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
+                TempData["success"] = "امکان رفاهی ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction(nameof(Index));
             }
 
