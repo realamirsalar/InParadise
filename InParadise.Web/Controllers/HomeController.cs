@@ -1,8 +1,9 @@
 using InParadise.Application.Common.Interfaces;
 using InParadise.Web.Models;
+using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using InParadise.Web.ViewModels;
+using System.Globalization;
 
 namespace InParadise.Web.Controllers
 {
@@ -21,7 +22,7 @@ namespace InParadise.Web.Controllers
             {
                 Villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity"),
                 Nights = 1,
-                ChechInDate = DateOnly.FromDateTime(DateTime.Now),
+                CheckInDate = DateOnly.FromDateTime(DateTime.Now),
             };
             return View(homeVm);
         }
