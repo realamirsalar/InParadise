@@ -3,6 +3,7 @@ using InParadise.Domain.Entities;
 using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace InParadise.Web.Controllers
 {
@@ -43,7 +44,15 @@ namespace InParadise.Web.Controllers
                 _roleManager.CreateAsync(new IdentityRole("Customer")).Wait();
             }
 
-            return View();
+            RegisterVM registerVM = new RegisterVM()
+            {
+                RoleList = _roleManager.Roles.Select(r => new SelectListItem()
+                {
+                    Text = r.Name,
+                    Value = r.Name
+                })
+            };
+            return View(registerVM);
         }
     }
 }
