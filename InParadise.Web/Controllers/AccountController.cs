@@ -1,5 +1,6 @@
 ﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Domain.Entities;
+using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,15 +18,23 @@ namespace InParadise.Web.Controllers
             SignInManager<ApplicationUser> signInManager,
             RoleManager<ApplicationUser> roleManager)
         {
-            _unitOfWork=unitOfWork;
-            _userManager=userManager;
-            _signInManager=signInManager;
-            _roleManager=roleManager;
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
-        public IActionResult Login()
+
+        [HttpGet]
+        public IActionResult Login(string returnUrl = null)
         {
-            return View();
+            returnUrl ??= Url.Content("~/");
+            LoginVM loginVm = new LoginVM()
+            {
+                RedirectUrl = returnUrl
+            };
+            return View(loginVm);
         }
+
         public IActionResult Register()
         {
             return View();
