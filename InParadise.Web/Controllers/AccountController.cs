@@ -1,4 +1,5 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Common.Utility;
 using InParadise.Domain.Entities;
 using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -38,10 +39,10 @@ namespace InParadise.Web.Controllers
 
         public IActionResult Register()
         {
-            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(SD.AdminRole).GetAwaiter().GetResult())
             {
-                _roleManager.CreateAsync(new IdentityRole("Admin")).Wait();
-                _roleManager.CreateAsync(new IdentityRole("Customer")).Wait();
+                _roleManager.CreateAsync(new IdentityRole(SD.AdminRole)).Wait();
+                _roleManager.CreateAsync(new IdentityRole(SD.CustomerRole)).Wait();
             }
 
             RegisterVM registerVM = new RegisterVM()
