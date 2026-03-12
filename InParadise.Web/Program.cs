@@ -1,4 +1,5 @@
 using InParadise.Application.Common.Interfaces;
+using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using InParadise.Infrastructure.Repository;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +13,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 //Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 //Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
