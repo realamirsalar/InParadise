@@ -1,4 +1,4 @@
-using InParadise.Application.Common.Interfaces;
+﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using InParadise.Infrastructure.Repository;
@@ -12,10 +12,22 @@ builder.Services.AddControllersWithViews();
 //Database and connection string
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 //Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+
 //Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+//Authorize (به طور پیش فرض ننویسی هم همین هاست )
+builder.Services.ConfigureApplicationCookie(option =>
+{
+    option.AccessDeniedPath = "/Account/AccessDenied";
+    option.LoginPath = "/Account/Login";
+});
+
 
 var app = builder.Build();
 
