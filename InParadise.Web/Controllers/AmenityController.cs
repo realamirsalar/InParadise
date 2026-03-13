@@ -1,13 +1,16 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Common.Utility;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Repository;
 using InParadise.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
 
 namespace InParadise.Web.Controllers
 {
+    [Authorize(Roles = SD.AdminRole)]
     public class AmenityController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

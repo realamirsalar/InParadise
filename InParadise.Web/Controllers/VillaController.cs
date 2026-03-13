@@ -1,10 +1,12 @@
 ﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InParadise.Web.Controllers
 {
+    [Authorize]
     public class VillaController : Controller
     {
         private readonly IUnitOfWork _UnitOfWork;

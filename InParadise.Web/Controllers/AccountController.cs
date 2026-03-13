@@ -37,6 +37,11 @@ namespace InParadise.Web.Controllers
             return View(loginVm);
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Register()
         {
