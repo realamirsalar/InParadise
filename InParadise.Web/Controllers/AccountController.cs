@@ -43,8 +43,9 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register(string returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/");
             if (!_roleManager.RoleExistsAsync(SD.AdminRole).GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole(SD.AdminRole)).Wait();
@@ -57,7 +58,8 @@ namespace InParadise.Web.Controllers
                 {
                     Text = r.Name,
                     Value = r.Name
-                })
+                }),
+                RedirectUrl = returnUrl
             };
             return View(registerVM);
         }
@@ -65,45 +67,49 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
-            ApplicationUser user = new()
+            if (ModelState.IsValid)
             {
-                Name = registerVM.Name,
-                Email = registerVM.Email,
-                PhoneNumber = registerVM.PhoneNumber,
-                NormalizedEmail = registerVM.Email.ToUpper(),
-                EmailConfirmed = true,
-                UserName = registerVM.Email,
-                CreateAt = DateTime.Now
-            };
-            //var result = _userManager.CreateAsync(user, registerVM.Password).GetAwaiter().GetResult();
-            var result = await _userManager.CreateAsync(user, registerVM.Password);
+                ApplicationUser user = new()
+                {
+                    Name = registerVM.Name,
+                    Email = registerVM.Email,
+                    PhoneNumber = registerVM.PhoneNumber,
+                    NormalizedEmail = registerVM.Email.ToUpper(),
+                    EmailConfirmed = true,
+                    UserName = registerVM.Email,
+                    CreateAt = DateTime.Now
+                };
+                //var result = _userManager.CreateAsync(user, registerVM.Password).GetAwaiter().GetResult();
+                var result = await _userManager.CreateAsync(user, registerVM.Password);
 
-            if (result.Succeeded)
-            {
-                if (!string.IsNullOrEmpty(registerVM.Role))
+                if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, registerVM.Role);
-                }
-                else
-                {
-                    await _userManager.AddToRoleAsync(user, SD.CustomerRole);
+                    if (!string.IsNullOrEmpty(registerVM.Role))
+                    {
+                        await _userManager.AddToRoleAsync(user, registerVM.Role);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.CustomerRole);
+                    }
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return LocalRedirect(registerVM.RedirectUrl);
+                    }
                 }
 
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                foreach (var error in result.Errors)
                 {
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    return LocalRedirect(registerVM.RedirectUrl);
+                    ModelState.AddModelError("", error.Description);
                 }
             }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
 
             registerVM.RoleList = _roleManager.Roles.Select(r => new SelectListItem()
             {

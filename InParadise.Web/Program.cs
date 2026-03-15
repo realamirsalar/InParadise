@@ -28,6 +28,8 @@ builder.Services.ConfigureApplicationCookie(option =>
     option.LoginPath = "/Account/Login";
 });
 
+//تغییر الرامات پسورد پیش فرض
+builder.Services.Configure<IdentityOptions>(option => { option.Password.RequiredLength = 6; });
 
 var app = builder.Build();
 
