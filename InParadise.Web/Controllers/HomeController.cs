@@ -16,6 +16,7 @@ namespace InParadise.Web.Controllers
             _UnitOfWork = unitOfWork;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             HomeVM homeVm = new HomeVM()
@@ -24,6 +25,21 @@ namespace InParadise.Web.Controllers
                 Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
             };
+            return View(homeVm);
+        }
+
+        [HttpPost]
+        public IActionResult Index(HomeVM homeVm)
+        {
+            homeVm.Villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            foreach (var Villa in homeVm.Villas)
+            {
+                if (Villa.Id % 2 == 0)
+                {
+                    Villa.IsAvailable = false;
+                }
+            }
+
             return View(homeVm);
         }
 
