@@ -1,0 +1,73 @@
+﻿@model HomeVM
+
+<div id="VillasList">
+    <div class="row p-lg-5 p-3 g-4">
+        @foreach (var villa in Model.Villas)
+        {
+            <div class="col-lg-6 col-md-12">
+                <div class="">
+                    <div class=" border border-light rounded rounded-3 p-3">
+                        <div class="row">
+                            <div class="col-4">
+                                <img src="@villa.ImageUrl" class="d-block w-100" />
+                            </div>
+                            <div class="col-8">
+                                <div class="d-flex justify-content-between">
+                                    <h2 class="f-pinar text-warning">@villa.Name</h2>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target='#exampleModal-@(villa.Id)'>
+                                        جزییات
+                                    </button>
+                                </div>
+
+                                <p class="card-text mt-2 d-md-block d-none">
+                                    @Html.Raw(villa.Description)
+                                </p>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="exampleModal-@(villa.Id)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl" style="border: 1px solid #aaa; border-radius: 7px; ">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h2 class="modal-title fs-3 text-primary f-pinar" id="exampleModalLabel">جزئیات ویلا </h2>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body m-0">
+                                        <partial name="_VillaDetail" model="@villa" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">بستن</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
+                                {
+                                    if (villa.IsAvailable == true)
+                                    {
+                                        <button type="submit" class="btn btn-primary w-100 mt-3"> سفارش</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" disabled class="btn btn-outline-danger w-100 mt-3"> فروخته شده</button>
+                                    }
+                                }
+                            </div>
+                            <div class="col-4 mt-2 small">
+                                <p class="m-0">متراژ : @villa.Sqft</p>
+                                <p class="m-0"> ظرفیت : @villa.Occupancy</p>
+                            </div>
+                            <div class="col-4 fs-5 text-warning text-end mt-2">
+                                <span class="" style="border-bottom:1px solid #ff6a00">@villa.Price</span>
+                                <span class="small">تومان</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

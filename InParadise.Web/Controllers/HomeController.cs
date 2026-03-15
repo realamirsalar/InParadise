@@ -43,6 +43,27 @@ namespace InParadise.Web.Controllers
             return View(homeVm);
         }
 
+        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
+        {
+            var villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            foreach (var Villa in villas)
+            {
+                if (Villa.Id % 2 == 0)
+                {
+                    Villa.IsAvailable = false;
+                }
+            }
+
+            HomeVM homeVM = new HomeVM()
+            {
+                CheckInDate = checkInDate,
+                Villas = villas,
+                Nights = nights
+            };
+
+            return PartialView("_VillaList", homeVM);
+        }
+
         public IActionResult Privacy()
         {
             return View();

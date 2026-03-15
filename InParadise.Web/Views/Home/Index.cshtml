@@ -22,7 +22,11 @@
             <span class="visually-hidden">بعد</span>
         </button>
     </div>
-    <form method="post" asp-controller="Home" asp-action="Index" style="background-color:black">
+   @*  <form method="post" style="background-color:black"
+          asp-controller="Home" asp-action="GetVillasByDate" data-ajax-method="post"
+          data-ajax="true" data-ajax-mode="replace" data-ajax-update="#VillasList"> *@
+    <form method="post" style="background-color:black"
+          asp-controller="Home" asp-action="GetVillasByDate" >
         <div class="row p-0 mx-0 py-4">
             <div class="col-12 col-md-5 offset-md-1 pl-2 pr-2 pr-md-0">
                 <div class="form-group">
@@ -33,7 +37,7 @@
             <div class="col-8 col-md-3 pl-2 pr-2">
                 <div class="form-group">
                     <label>تعداد شب</label>
-                    <select class="form-select">
+                    <select class="form-select" asp-for="Nights">
                         @for (var i = 1; i <= 10; i++)
                         {
                             <option value="@i">@i</option>
@@ -44,7 +48,7 @@
 
             <div class="col-4 col-md-2 pt-4 pr-2">
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-block">
+                    <button type="button" onclick="fnLoadVillaList()" class="btn btn-primary btn-block">
                         <i class="bi bi-search"></i> &nbsp; برسی رزرو
                     </button>
 
@@ -52,138 +56,29 @@
             </div>
 
         </div>
-        <div id="VillasList">
-            <div class="row p-lg-5 p-3 g-4">
-                @foreach (var villa in Model.Villas)
-                {
-                    <div class="col-lg-6 col-md-12">
-                        <div class="">
-                            <div class=" border border-light rounded rounded-3 p-3">
-                                <div class="row">
-                                    <div class="col-4">
-                                        <img src="@villa.ImageUrl" class="d-block w-100" />
-                                    </div>
-                                    <div class="col-8">
-                                        <div class="d-flex justify-content-between">
-                                            <h2 class="f-pinar text-warning">@villa.Name</h2>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target='#exampleModal-@(villa.Id)'>
-                                                جزییات
-                                            </button>
-                                        </div>
+        <partial name="_VillaList" model="Model" />
 
-                                        <p class="card-text mt-2 d-md-block d-none">
-                                            @Html.Raw(villa.Description)
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="modal fade" id="exampleModal-@(villa.Id)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl" style="border: 1px solid #aaa; border-radius: 7px; ">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h2 class="modal-title fs-3 text-primary f-pinar" id="exampleModalLabel">جزئیات ویلا </h2>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body m-0">
-                                                <partial name="_VillaDetail" model="@villa"/>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">بستن</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-4">
-                                        @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
-                                        {
-                                            if (villa.IsAvailable == true)
-                                            {
-                                                <button type="submit" class="btn btn-primary w-100 mt-3"> سفارش</button>
-                                            }
-                                            else
-                                            {
-                                                <button type="submit" disabled class="btn btn-outline-danger w-100 mt-3"> فروخته شده</button>
-                                            }
-                                        }
-                                    </div>
-                                    <div class="col-4 mt-2 small">
-                                        <p class="m-0">متراژ : @villa.Sqft</p>
-                                        <p class="m-0"> ظرفیت : @villa.Occupancy</p>
-                                    </div>
-                                    <div class="col-4 fs-5 text-warning text-end mt-2">
-                                        <span class="" style="border-bottom:1px solid #ff6a00">@villa.Price</span>
-                                        <span class="small">تومان</span>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-
-        </div>
-
-        @* <div id="VillasList">
-        <div class="row px-1g-5 m-1g-4 m-sm-0 px-sm-0" style=" -- bs-gutter-x:0">
-        <div class="p-4 col-md-12 col-1g-6">
-        <div class="row" style="border-radius:5px; border: 1px solid #aaa">
-        <div class="col-4 n-2">
-                            <img class="d-block w-100" style="border-radius:5px;" src="~/images/notfound.jpg">
-        </div>
-        <div class="col-8">
-            <div class="d-flex justify-content-between">
-                <p class="card-title text-warning" style="font-size:xx-large">Villa Name</p>
-                <div class="pt-2">
-                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target='#exampleModal-@(11)'>
-                        Details
-                    </button>
-                </div>
-            </div>
-            <p class="card-text">
-                Villa Description
-            </p>
-        </div>
-        <div class="col-12">
-        <div class="row pb-3 pt-2">
-        <div class="col-4">
-            <a class="btn btn-success form-control btn-block">
-                Book
-            </a>
-        </div>
-        <div class="col-4">
-            <span class="">Max Occupancy : 11 adults </span><br />
-            <span class=" pt-1">Villa Size : 11 sqft</span><br />
-        </div>
-        <div class="col-4">
-            <span class="text-warning float-end font-weight-bold pt-1" style="font-size: 25px;">
-                USD
-
-                <span style="border-bottom:1px solid #ff6a00">
-                    $11
-                </span>
-            </span>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div><div class="modal fade" id="exampleModal-@(11)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl" style="border: 1px solid #aaa; border-radius: 7px; ">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-3 text-success" id="exampleModalLabel">Villa Details</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body m-0">
-            Villa DETAILS
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div> *@
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        function fnLoadVillaList(){
+
+            var objData={
+                checkInDate: $("#CheckInDate").val(),
+                nights: $("#Nights").val()
+            };
+
+            $.ajax({
+                url : "@Url.Action("GetVillasByDate", "Home")",
+                data : objData,
+                type : "POST",
+                success : function(data){
+                    $("#VillasList").empty();
+                    $("#VillasList").html(data);
+                }
+            });
+        }
+    </script>
+}
