@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Common.Utility;
 using InParadise.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,5 +39,28 @@ namespace InParadise.Web.Controllers
             booking.TotalCost = booking.Villa.Price * nights;
             return View(booking);
         }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult FinalizeBooking(Booking booking)
+        {
+
+            var villa = _unitOfWork.VillaRepository.Get(v => v.Id == booking.VillaId);
+            booking.TotalCost = villa.Price * booking.Nights;
+
+            booking.Status = SD.StatusPending;
+
+            _unitOfWork.Booking.Insert(booking);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(BookingConfirmation) , new {bookingId = booking.Id});
+        }
+
+        [Authorize]
+        public IActionResult BookingConfirmation(int bookingId)
+        {
+            return View();
+        }
+
     }
 }
