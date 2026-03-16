@@ -45,6 +45,7 @@ namespace InParadise.Web.Controllers
 
         public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
+            //Thread.Sleep(2000);
             var villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
             foreach (var Villa in villas)
             {
