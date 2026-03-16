@@ -46,7 +46,9 @@
                                 {
                                     if (villa.IsAvailable == true)
                                     {
-                                        <button type="submit" class="btn btn-primary w-100 mt-3"> سفارش</button>
+                                        <button asp-controller="Booking" asp-action="FinalizeBooking"
+                                                asp-route-nights="@Model.Nights" asp-route-villaId="@villa.Id" asp-route-checkInDate="@Model.CheckInDate"
+                                                type="submit" class="btn btn-primary w-100 mt-3"> سفارش</button>
                                     }
                                     else
                                     {

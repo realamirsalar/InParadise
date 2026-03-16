@@ -29,20 +29,6 @@ namespace InParadise.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(HomeVM homeVm)
-        {
-            homeVm.Villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
-            foreach (var Villa in homeVm.Villas)
-            {
-                if (Villa.Id % 2 == 0)
-                {
-                    Villa.IsAvailable = false;
-                }
-            }
-
-            return View(homeVm);
-        }
-
         public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
             //Thread.Sleep(2000);
