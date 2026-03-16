@@ -10,7 +10,7 @@ namespace InParadise.Application.Common.Interfaces
         public IVillaNumberRepository VillaNumberRepository { get; }
         public IBookingRepository Booking { get; }
         public IAmenity AmenityRepository { get; }
-        public IApplicationUserRepository ApplicationUser { get; }
+        public IApplicationUserRepository User { get; }
         void Save();
     }
 }
