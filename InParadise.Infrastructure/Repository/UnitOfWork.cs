@@ -14,6 +14,7 @@ namespace InParadise.Infrastructure.Repository
         {
             _db = db;
             VillaRepository = new VillaRepository(_db);
+            ApplicationUser = new ApplicationUserRepository(_db);
             VillaNumberRepository = new VillaNumberRepository(_db);
             AmenityRepository = new AmenityRepository(_db);
             Booking = new BookingRepository(_db);
@@ -22,7 +23,8 @@ namespace InParadise.Infrastructure.Repository
         public IVillaRepository VillaRepository { get; }
         public IVillaNumberRepository VillaNumberRepository { get; }
         public IBookingRepository Booking { get; }
-        public IAmenity AmenityRepository { get; set; }
+        public IAmenity AmenityRepository { get; }
+        public IApplicationUserRepository ApplicationUser { get; }
 
         public void Save()
         {
