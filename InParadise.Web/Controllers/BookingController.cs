@@ -44,7 +44,6 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult FinalizeBooking(Booking booking)
         {
-
             var villa = _unitOfWork.VillaRepository.Get(v => v.Id == booking.VillaId);
             booking.TotalCost = villa.Price * booking.Nights;
 
@@ -53,14 +52,13 @@ namespace InParadise.Web.Controllers
             _unitOfWork.Booking.Insert(booking);
             _unitOfWork.Save();
 
-            return RedirectToAction(nameof(BookingConfirmation) , new {bookingId = booking.Id});
+            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
         }
 
         [Authorize]
         public IActionResult BookingConfirmation(int bookingId)
         {
-            return View();
+            return View(bookingId);
         }
-
     }
 }
