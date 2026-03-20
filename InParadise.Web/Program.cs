@@ -31,6 +31,12 @@ builder.Services.ConfigureApplicationCookie(option =>
 //تغییر الرامات پسورد پیش فرض
 builder.Services.Configure<IdentityOptions>(option => { option.Password.RequiredLength = 6; });
 
+//درگاه پرداخت
+//StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
+//SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Syncfusion:Licensekey").Get<string>());
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
