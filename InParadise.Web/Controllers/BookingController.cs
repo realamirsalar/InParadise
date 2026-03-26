@@ -16,9 +16,23 @@ namespace InParadise.Web.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<Booking> bookings;
+            if (User.IsInRole(SD.AdminRole))
+            {
+                bookings = _unitOfWork.Booking.GetAll(includeProperties: "User,Villa");
+            }
+            else
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                bookings = _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa");
+            }
+
+            return View(bookings);
         }
 
         [Authorize]
@@ -66,27 +80,28 @@ namespace InParadise.Web.Controllers
             return View(bookingId);
         }
 
+
         #region API Call
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult GetAll()
-        {
-            IEnumerable<Booking> bookings;
-            if (User.IsInRole(SD.AdminRole))
-            {
-                bookings = _unitOfWork.Booking.GetAll(includeProperties: "User,Villa");
-            }
-            else
-            {
-                var claimsIdentity = (ClaimsIdentity)User.Identity;
-                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //[HttpGet]
+        //[Authorize]
+        //public IActionResult GetAll()
+        //{
+        //    IEnumerable<Booking> bookings;
+        //    if (User.IsInRole(SD.AdminRole))
+        //    {
+        //        bookings = _unitOfWork.Booking.GetAll(includeProperties: "User,Villa");
+        //    }
+        //    else
+        //    {
+        //        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        //        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                bookings = _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa");
-            }
+        //        bookings = _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa");
+        //    }
 
-            return Json(new { data = bookings });
-        }
+        //    return Json(new { data = bookings });
+        //}
 
         #endregion
     }

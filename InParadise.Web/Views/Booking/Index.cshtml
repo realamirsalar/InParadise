@@ -1,5 +1,38 @@
-﻿@model IEnumerable<Amenity>
+﻿@using InParadise.Application.Common.Utility
+@model IEnumerable<Booking>
+
 @{
+    var status = Context.Request.Query["status"];
+
+    var pending = "";
+    var approved = "";
+    var chechIn = "";
+    var complete = "";
+    var cancelled = "";
+
+    switch (status)
+    {
+        case SD.StatusPending:
+            pending = "text-white bg-primary";
+            break;
+        case SD.StatusApproved:
+            approved = "text-white bg-primary";
+            break;
+        case SD.StatusCheckedIn:
+            chechIn = "text-white bg-primary";
+            break;
+        case SD.StatusCompleted:
+            complete = "text-white bg-primary";
+            break;
+        case SD.StatusCancelled:
+            cancelled = "text-white bg-primary";
+            break;
+            default:
+            break;
+
+    }
+
+
 }
 <h1 class="f-pinar text-primary text-center my-5"> لیست سفارشات </h1>
 
@@ -8,7 +41,26 @@
         <p class=" my-2">در اینجا میتواند لیست سفارشات خود را مشاهده کنید</p>
     </div>
     <div class="card-body">
-        <table class="table table-bordered">
+        <div class ="d-flex justify-content-end pb-3">
+            <ul class="list-group list-group-horizontal-sm">
+                <a class="text-decoration-none" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusPending">
+                    <li class="list-group-item @pending">@SD.StatusPending</li>
+                </a>
+                <a class="text-decoration-none" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusApproved">
+                    <li class="list-group-item @approved">@SD.StatusApproved</li>
+                </a>
+                <a class="text-decoration-none" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusCheckedIn">
+                    <li class="list-group-item @chechIn">@SD.StatusCheckedIn</li>
+                </a>
+                <a class="text-decoration-none" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusCompleted">
+                    <li class="list-group-item @complete">@SD.StatusCompleted</li>
+                </a>
+                <a class="text-decoration-none" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusCancelled">
+                    <li class="list-group-item @cancelled">@SD.StatusCancelled</li>
+                </a>
+            </ul>
+        </div>
+        <table id="tblBooking" class="table table-bordered">
             <thead>
             <tr>
                 <th>شناسه</th>
@@ -19,11 +71,28 @@
                 <th>تاریخ رزرو</th>
                 <th>تعدا شب</th>
                 <th>مجموع</th>
-                <th></th>
+                <th>عملیات</th>
             </tr>
             </thead>
             <tbody>
-               
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    <td>@item.Status</td>
+                    <td>@item.CheckInDate</td>
+                    <td>@item.Nights</td>
+                    <td>@item.TotalCost</td>
+                    <td>
+                        <a asp-controller="" asp-action="" asp-route-VillaId="@item.Id" class="btn btn-sm w-75 btn-outline-warning">
+                            <i class="bi bi-pencil-square"></i> جزییات
+                        </a>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>
