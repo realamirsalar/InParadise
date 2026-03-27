@@ -104,5 +104,13 @@ namespace InParadise.Web.Controllers
         //}
 
         #endregion
+
+        [Authorize]
+        public IActionResult BookingDetails(int bookingId)
+        {
+            Booking booking = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
+
+            return View(booking);
+        }
     }
 }

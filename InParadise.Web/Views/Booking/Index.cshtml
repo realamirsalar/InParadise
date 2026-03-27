@@ -87,7 +87,7 @@
                     <td>@item.Nights</td>
                     <td>@item.TotalCost</td>
                     <td>
-                        <a asp-controller="" asp-action="" asp-route-VillaId="@item.Id" class="btn btn-sm w-75 btn-outline-warning">
+                            <a asp-controller="Booking" asp-action="BookingDetails" asp-route-bookingId="@item.Id" class="btn btn-sm w-75 btn-outline-warning">
                             <i class="bi bi-pencil-square"></i> جزییات
                         </a>
                     </td>
