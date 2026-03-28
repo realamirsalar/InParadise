@@ -81,6 +81,41 @@ namespace InParadise.Web.Controllers
             return View(bookingId);
         }
 
+        [Authorize]
+        public IActionResult BookingDetails(int bookingId)
+        {
+            Booking booking = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
+
+            if (booking.VillaNumber == 0 && booking.Status == SD.StatusApproved)
+            {
+                var availableVillaNumber = AssignAvailableVillaNumberByVilla(booking.VillaId);
+
+                booking.VillaNumbers = _unitOfWork.VillaNumberRepository.GetAll(vn =>
+                    vn.VillaId == booking.VillaId && availableVillaNumber.Any(a => a == vn.NumberOfVilla)).ToList();
+            }
+
+            return View(booking);
+        }
+
+        private List<int> AssignAvailableVillaNumberByVilla(int villaId)
+        {
+            List<int> availableVillaNumbers = new();
+
+            var villaNumberes = _unitOfWork.VillaNumberRepository.GetAll(vn => vn.VillaId == villaId);
+
+            var checkedInVilla =
+                _unitOfWork.Booking.GetAll(b => b.VillaId == villaId && b.Status == SD.StatusCheckedIn)
+                    .Select(b => b.VillaNumber);
+            foreach (var villaNumber in villaNumberes)
+            {
+                if (!checkedInVilla.Contains(villaNumber.NumberOfVilla))
+                {
+                    availableVillaNumbers.Add(villaNumber.NumberOfVilla);
+                }
+            }
+
+            return availableVillaNumbers;
+        }
 
         #region API Call
 
@@ -105,13 +140,5 @@ namespace InParadise.Web.Controllers
         //}
 
         #endregion
-
-        [Authorize]
-        public IActionResult BookingDetails(int bookingId)
-        {
-            Booking booking = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
-
-            return View(booking);
-        }
     }
 }
