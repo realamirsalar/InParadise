@@ -36,6 +36,7 @@ namespace InParadise.Web.Controllers
         }
 
         [Authorize]
+        [HttpGet]
         public IActionResult FinalizeBooking(int villaId, int nights, DateOnly checkInDate)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;

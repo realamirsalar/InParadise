@@ -4,6 +4,7 @@ using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Globalization;
+using InParadise.Application.Common.Utility;
 
 namespace InParadise.Web.Controllers
 {
@@ -33,12 +34,16 @@ namespace InParadise.Web.Controllers
         {
             //Thread.Sleep(2000);
             var villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            var villaNumbersList = _UnitOfWork.VillaNumberRepository.GetAll().ToList();
+            var bookedVillas = _UnitOfWork.Booking
+                .GetAll(b => b.Status == SD.StatusApproved || b.Status == SD.StatusCheckedIn).ToList();
+
             foreach (var Villa in villas)
             {
-                if (Villa.Id % 2 == 0)
-                {
-                    Villa.IsAvailable = false;
-                }
+                int roomsAvailable =
+                    SD.VillaRoomsAvailableCount(Villa.Id, villaNumbersList, checkInDate, nights, bookedVillas);
+
+                Villa.IsAvailable = roomsAvailable > 0 ? true : false;
             }
 
             HomeVM homeVM = new HomeVM()
