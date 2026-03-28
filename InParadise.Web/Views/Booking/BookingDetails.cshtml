@@ -65,7 +65,19 @@
                 <div class="form-group pt-2 col-6">
                     <label class="text-warning">Actual Check-out Date</label>
                     <input asp-for="ActualCheckOutDate" disabled class="form-control" />
-                </div>
+                </div> 
+                @if (Model.Status == SD.StatusApproved && User.IsInRole(SD.AdminRole))
+                {
+                <div class="form-group pt-2 col-6">
+                    <label class="text-danger" asp-for="VillaNumber">شماره ویلا</label>
+                    <select class="form-select" asp-for="VillaNumber">
+                        @foreach (var villaNumber in Model.VillaNumbers)
+                        {
+                            <option value="@villaNumber.NumberOfVilla">@villaNumber.NumberOfVilla</option>
+                        }
+                    </select>
+                    </div>
+                }
                 @if (Model.IsPaymentSuccessful && User.IsInRole(SD.AdminRole))
                 {
                     <div class="form-group pt-2 col-6">
@@ -88,7 +100,7 @@
                 @if (Model.Status == SD.StatusApproved)
                 {
                     <button type="submit" asp-controller="Booking" asp-action="CheckIn"
-                            class="btn btn-warning form-control my-1">
+                            class="btn btn-warning form-control my-2">
                         <i class="bi bi-check2-square"></i> &nbsp; Check In
                     </button>
                 }
