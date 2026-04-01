@@ -18,6 +18,8 @@ namespace InParadise.Application.Common.Utility
         public const string StatusCancelled = "لغو شده";
         public const string StatusRefunded = "برگشت داده شده";
 
+        public const string ZarinPalGateway = "زرین پال";
+
         public static int VillaRoomsAvailableCount(int villaId,
             List<VillaNumber> villaNumberList, DateOnly checkInDate, int nights,
             List<Booking> bookings)

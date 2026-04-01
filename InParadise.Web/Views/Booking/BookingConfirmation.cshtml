@@ -1,9 +1,10 @@
-﻿@model int
+﻿@model Booking
 
 <div class="container  pt-4">
     <div class="col-12 text-center">
         <h1 class="text-primary text-center f-pinar">تعطیلات در انتظار شماست!</h1>
-        شماره شفارش شما : @Model <br />
+        شماره سفارش شما : @Model.Id <br />
+        شماره پیگری : @Model.RefId<br />
         <p>شما میتوانید تمامی سفارشات خود را در بخش مدیریت سفارشات ببینید.</p>
         <img src="~/images/orderConfirmed.jpg" style="border-radius:20px" width="65%" />
     </div>

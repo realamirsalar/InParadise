@@ -29,11 +29,10 @@ namespace InParadise.Domain.Entities
         [Required] public DateOnly CheckOutDate { get; set; }
 
         public bool IsPaymentSuccessful { get; set; } = false;
+        public string? PaymentGateway { get; set; }
+        public string? Authority { get; set; }
+        public int? RefId { get; set; }
         public DateTime PaymentDate { get; set; }
-
-        public string? StripeSessionId { get; set; }
-        public string? StripePaymentIntentId { get; set; }
-
         public DateTime ActualCheckInDate { get; set; }
         public DateTime ActualCheckOutDate { get; set; }
 

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using InParadise.Application.Common.Interfaces;
+﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Application.Common.Utility;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace InParadise.Infrastructure.Repository
 {
@@ -40,21 +41,24 @@ namespace InParadise.Infrastructure.Repository
             }
         }
 
-        public void UpdatePaymentID(int bookingId, string sessionId, string paymentIntentId)
+        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, int? refId)
         {
             var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
             if (bookingFromDb != null)
             {
-                if (!string.IsNullOrEmpty(sessionId))
+                if (!string.IsNullOrEmpty(authority))
                 {
-                    bookingFromDb.StripeSessionId = sessionId;
+                    bookingFromDb.Authority = authority;
                 }
 
-                if (!string.IsNullOrEmpty(paymentIntentId))
+                if (!string.IsNullOrEmpty(paymentGetWay))
                 {
-                    bookingFromDb.StripePaymentIntentId = paymentIntentId;
-                    bookingFromDb.PaymentDate = DateTime.Now;
-                    bookingFromDb.IsPaymentSuccessful = true;
+                    bookingFromDb.PaymentGateway = paymentGetWay;
+                }
+
+                if (refId != null)
+                {
+                    bookingFromDb.RefId = refId;
                 }
             }
         }

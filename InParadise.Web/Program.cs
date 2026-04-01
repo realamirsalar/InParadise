@@ -32,6 +32,8 @@ builder.Services.ConfigureApplicationCookie(option =>
 builder.Services.Configure<IdentityOptions>(option => { option.Password.RequiredLength = 6; });
 
 //درگاه پرداخت
+builder.Services.AddHttpClient();
+
 //StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 //SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Syncfusion:Licensekey").Get<string>());
