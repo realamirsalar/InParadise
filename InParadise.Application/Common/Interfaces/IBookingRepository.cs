@@ -9,6 +9,6 @@ namespace InParadise.Application.Common.Interfaces
     {
         public void Update(Booking entity);
         public void UpdateStatus(int bookingId, string bookingStatus);
-        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, int? refId);
+        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, string? refId);
     }
 }

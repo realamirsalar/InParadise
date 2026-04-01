@@ -41,7 +41,7 @@ namespace InParadise.Infrastructure.Repository
             }
         }
 
-        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, int? refId)
+        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, string? refId)
         {
             var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
             if (bookingFromDb != null)
@@ -56,7 +56,7 @@ namespace InParadise.Infrastructure.Repository
                     bookingFromDb.PaymentGateway = paymentGetWay;
                 }
 
-                if (refId != null)
+                if (!string.IsNullOrEmpty(refId))
                 {
                     bookingFromDb.RefId = refId;
                 }

@@ -31,7 +31,7 @@ namespace InParadise.Domain.Entities
         public bool IsPaymentSuccessful { get; set; } = false;
         public string? PaymentGateway { get; set; }
         public string? Authority { get; set; }
-        public int? RefId { get; set; }
+        public string? RefId { get; set; }
         public DateTime PaymentDate { get; set; }
         public DateTime ActualCheckInDate { get; set; }
         public DateTime ActualCheckOutDate { get; set; }
