@@ -23,7 +23,7 @@ namespace InParadise.Infrastructure.Repository
             this._db.Bookings.Update(entity);
         }
 
-        public void UpdateStatus(int bookingId, string bookingStatus, bool isPay)
+        public void UpdateStatus(int bookingId, string bookingStatus, bool isPay, int villaNumber = 0)
         {
             var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
             if (bookingFromDb != null)
@@ -31,6 +31,7 @@ namespace InParadise.Infrastructure.Repository
                 bookingFromDb.Status = bookingStatus;
                 if (bookingStatus == SD.StatusCheckedIn)
                 {
+                    bookingFromDb.VillaNumber = villaNumber;
                     bookingFromDb.ActualCheckInDate = DateTime.Now;
                 }
 

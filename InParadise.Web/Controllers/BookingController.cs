@@ -201,7 +201,7 @@ namespace InParadise.Web.Controllers
 
                         // (نکته): فرض کردم پارامتر آخر UpdatePayment از نوع string است (که باید باشد)
                         _unitOfWork.Booking.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
-                        _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusApproved, true);
+                        _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusApproved, true, 0);
                         _unitOfWork.Save();
 
                         return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
@@ -244,8 +244,9 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult CheckIn(Booking booking)
         {
-            //_bookingService.UpdateStatus(booking.Id, SD.StatusCompleted, booking.VillaNumber);
-            //TempData["Success"] = "Booking Completed Successfully.";
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCheckedIn, true, booking.VillaNumber);
+            TempData["Success"] = "ورود با موفقیت ثبت شد.";
+            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
@@ -253,8 +254,9 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult Checkout(Booking booking)
         {
-            //_bookingService.UpdateStatus(booking.Id, SD.StatusCompleted, booking.VillaNumber);
-            //TempData["Success"] = "Booking Completed Successfully.";
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCompleted, true, booking.VillaNumber);
+            TempData["Success"] = "روزو با موفقیت تکمیل شد.";
+            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
@@ -262,8 +264,9 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult CancelBooking(Booking booking)
         {
-            //_bookingService.UpdateStatus(booking.Id, SD.StatusCompleted, booking.VillaNumber);
-            //TempData["Success"] = "Booking Completed Successfully.";
+            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCancelled, true, 0);
+            TempData["Error"] = "روزو با موقیت کنسل شد.";
+            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
