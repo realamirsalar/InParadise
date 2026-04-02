@@ -65,17 +65,29 @@
                 <div class="form-group pt-2 col-6">
                     <label class="text-warning">Actual Check-out Date</label>
                     <input asp-for="ActualCheckOutDate" disabled class="form-control" />
+                </div>
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">شناسه یکتای پرداخت</label>
+                    <input asp-for="Authority" disabled class="form-control" />
+                </div>
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">کد رهگیری پرداخت</label>
+                    <input asp-for="RefId" disabled class="form-control" />
+                </div> 
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">تاریخ پرداخت</label>
+                    <input asp-for="PaymentDate" disabled class="form-control" />
                 </div> 
                 @if (Model.Status == SD.StatusApproved && User.IsInRole(SD.AdminRole))
                 {
-                <div class="form-group pt-2 col-6">
-                    <label class="text-danger" asp-for="VillaNumber">شماره ویلا</label>
-                    <select class="form-select" asp-for="VillaNumber">
-                        @foreach (var villaNumber in Model.VillaNumbers)
-                        {
-                            <option value="@villaNumber.NumberOfVilla">@villaNumber.NumberOfVilla</option>
-                        }
-                    </select>
+                    <div class="form-group pt-2 col-6">
+                        <label class="text-danger" asp-for="VillaNumber">شماره ویلا</label>
+                        <select class="form-select" asp-for="VillaNumber">
+                            @foreach (var villaNumber in Model.VillaNumbers)
+                            {
+                                <option value="@villaNumber.NumberOfVilla">@villaNumber.NumberOfVilla</option>
+                            }
+                        </select>
                     </div>
                 }
                 @if (Model.IsPaymentSuccessful && User.IsInRole(SD.AdminRole))

@@ -19,6 +19,9 @@ namespace InParadise.Application.Common.Utility
         public const string StatusRefunded = "برگشت داده شده";
 
         public const string ZarinPalGateway = "زرین پال";
+        public const string ZarinPalMerchantId = "ZarinPal:MerchantId";
+        public const string ZarinPalPaymentVerificationUrl = "ZarinPal:PaymentVerificationUrl";
+        public const string ZarinPalPaymentGatewayUrl = "ZarinPal:PaymentGatewayUrl";
 
         public static int VillaRoomsAvailableCount(int villaId,
             List<VillaNumber> villaNumberList, DateOnly checkInDate, int nights,

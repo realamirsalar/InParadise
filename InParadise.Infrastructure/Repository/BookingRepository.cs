@@ -23,7 +23,7 @@ namespace InParadise.Infrastructure.Repository
             this._db.Bookings.Update(entity);
         }
 
-        public void UpdateStatus(int bookingId, string bookingStatus)
+        public void UpdateStatus(int bookingId, string bookingStatus, bool isPay)
         {
             var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
             if (bookingFromDb != null)
@@ -37,6 +37,11 @@ namespace InParadise.Infrastructure.Repository
                 if (bookingStatus == SD.StatusCompleted)
                 {
                     bookingFromDb.ActualCheckOutDate = DateTime.Now;
+                }
+
+                if (isPay == true)
+                {
+                    bookingFromDb.IsPaymentSuccessful = isPay;
                 }
             }
         }
@@ -59,6 +64,7 @@ namespace InParadise.Infrastructure.Repository
                 if (!string.IsNullOrEmpty(refId))
                 {
                     bookingFromDb.RefId = refId;
+                    bookingFromDb.PaymentDate = DateTime.Now;
                 }
             }
         }

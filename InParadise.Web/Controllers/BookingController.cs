@@ -14,28 +14,34 @@ namespace InParadise.Web.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly HttpClient _httpClient;
-        private readonly string _merchantId = "00000000-0000-0000-0000-000000000000";
+        private readonly IConfiguration _configuration;
 
-        public BookingController(IUnitOfWork unitOfWork, HttpClient httpClient)
+        public BookingController(IUnitOfWork unitOfWork, HttpClient httpClient, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _httpClient = httpClient;
+            _configuration = configuration;
         }
 
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(string? status)
         {
             IEnumerable<Booking> bookings;
             if (User.IsInRole(SD.AdminRole))
             {
-                bookings = _unitOfWork.Booking.GetAll(includeProperties: "User,Villa");
+                bookings = string.IsNullOrEmpty(status)
+                    ? _unitOfWork.Booking.GetAll(includeProperties: "User,Villa")
+                    : _unitOfWork.Booking.GetAll(b => b.Status == status, includeProperties: "User,Villa");
             }
             else
             {
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                bookings = _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa");
+                bookings = string.IsNullOrEmpty(status)
+                    ? _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa")
+                    : _unitOfWork.Booking.GetAll(b => b.UserId == userId && b.Status == status,
+                        includeProperties: "User,Villa");
             }
 
             return View(bookings);
@@ -86,7 +92,7 @@ namespace InParadise.Web.Controllers
             var requestData = new ZarinPalRequestDto()
             {
                 //merchant_id = "00000000-0000-0000-0000-000000000000",
-                merchant_id = _merchantId,
+                merchant_id = _configuration.GetValue<string>("ZarinPal:MerchantId"),
                 amount = (int)booking.TotalCost,
                 description = "این یک تست است ومن درحال آموزش هستم.",
                 //callback_url = $"{domain}booking/BookingConfirmation?bookingId={booking.Id}"
@@ -100,8 +106,9 @@ namespace InParadise.Web.Controllers
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // آدرس سندباکس برای درخواست پرداخت
+            var requestUrl = _configuration.GetValue<string>("ZarinPal:PaymentRequestUrl");
             var response =
-                await _httpClient.PostAsync("https://sandbox.zarinpal.com/pg/v4/payment/request.json", content);
+                await _httpClient.PostAsync(requestUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             //تبدیل متن خام به یک سند منظم و قابل جستجو برای سی‌شارپ
@@ -131,7 +138,8 @@ namespace InParadise.Web.Controllers
                     _unitOfWork.Booking.UpdatePayment(booking.Id, authority, SD.ZarinPalGateway, null);
                     _unitOfWork.Save();
                     // هدایت کاربر به درگاه پرداخت تستی
-                    string paymentUrl = $"https://sandbox.zarinpal.com/pg/StartPay/{authority}";
+                    var paymentGetWay = _configuration.GetValue<string>(SD.ZarinPalPaymentGatewayUrl);
+                    string paymentUrl = paymentGetWay + authority;
                     return Redirect(paymentUrl);
                 }
             }
@@ -161,7 +169,7 @@ namespace InParadise.Web.Controllers
 
             var verifyData = new ZarinPalVerifyDto()
             {
-                merchant_id = _merchantId,
+                merchant_id = _configuration.GetValue<string>(SD.ZarinPalMerchantId),
                 amount = (long)booking.TotalCost,
                 authority = authority
             };
@@ -171,8 +179,9 @@ namespace InParadise.Web.Controllers
 
 
             // آدرس سندباکس برای تایید پرداخت
+            var verifyUrl = _configuration.GetValue<string>(SD.ZarinPalPaymentVerificationUrl);
             var response =
-                await _httpClient.PostAsync("https://sandbox.zarinpal.com/pg/v4/payment/verify.json", content);
+                await _httpClient.PostAsync(verifyUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
 
@@ -192,7 +201,7 @@ namespace InParadise.Web.Controllers
 
                         // (نکته): فرض کردم پارامتر آخر UpdatePayment از نوع string است (که باید باشد)
                         _unitOfWork.Booking.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
-                        _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusApproved);
+                        _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusApproved, true);
                         _unitOfWork.Save();
 
                         return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
