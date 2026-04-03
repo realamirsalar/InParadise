@@ -15,75 +15,67 @@
         </div>
     </div>
     <div class="col-lg-6 p-3 border border-light border-1">
-        <div class="d-flex justify-content-between pb-3 border-bottom">
-            <h3 class="text-primary f-pinar">جزییات ویلا</h3>
-            @if ((Model.Status == SD.StatusApproved || Model.Status == SD.StatusPending) && User.IsInRole(SD.AdminRole))
-            {
-            <a class="btn w-50 btn-outline-danger"><i class="bi bi-x-circle"></i>&nbsp;لغو سفارش</a>
-            }
-        </div>
-        <form class="">
+       
+        <form method="post">
+            <input asp-for="Id" hidden />
+            <input asp-for="VillaId" hidden />
+            <input asp-for="UserId" hidden />
+            <input asp-for="CheckInDate" hidden />
+            <input asp-for="CheckOutDate" hidden />
+            <input asp-for="Nights" hidden /> 
+            <div class="d-flex justify-content-between pb-3 border-bottom">
+                <h3 class="text-primary f-pinar">جزییات ویلا</h3>
+                @if ((Model.Status == SD.StatusApproved || Model.Status == SD.StatusPending) && User.IsInRole(SD.AdminRole))
+                {
+                    <button type="submit" class="btn w-50 btn-outline-danger" asp-controller="Booking" asp-action="CancelBooking">
+                        <i class="bi bi-x-circle"></i>&nbsp;لغو سفارش
+                    </button>
+                }
+            </div>
             <div class="row">
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Name</label>
-                    <input asp-for="Name" class="form-control" />
+                    <label class="text-warning">نام و نام خانوادگی</label>
+                    <input asp-for="Name" class="form-control"/>
                 </div>
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Phone</label>
-                    <input asp-for="Phone" class="form-control" />
+                    <label class="text-warning">شماره موبایل</label>
+                    <input asp-for="Phone" class="form-control"/>
                 </div>
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Email</label>
-                    <input asp-for="Email" class="form-control" />
-                </div>
-                    
-                <div class="form-group pt-2 col-6">
-                    <label class="text-warning">No. of nights</label>
-                    <input asp-for="Nights" disabled class="form-control" />
-                </div>
-                <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Status</label>
-                    <input asp-for="Status" disabled class="form-control" />
-                </div>
-                <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Booking Date</label>
-                    <input asp-for="BookingDate" disabled class="form-control" />
-                </div>
-                <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Check-in Date</label>
-                    <input asp-for="CheckInDate" disabled class="form-control" />
-                </div>
-                <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Actual Check-in Date</label>
-                    <input asp-for="ActualCheckInDate" disabled class="form-control" />
+                    <label class="text-warning">پست الکترونیک</label>
+                    <input asp-for="Email" class="form-control"/>
                 </div>
 
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Check-out Date</label>
-                    <input asp-for="CheckOutDate" disabled class="form-control" />
+                    <label class="text-warning">تعداد شب</label>
+                    <input asp-for="Nights" disabled class="form-control"/>
                 </div>
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">Actual Check-out Date</label>
-                    <input asp-for="ActualCheckOutDate" disabled class="form-control" />
+                    <label class="text-warning">وضعیت</label>
+                    <input asp-for="Status" disabled class="form-control"/>
                 </div>
-                @if (Model.IsPaymentSuccessful)
-                {
-                    if (User.IsInRole(SD.AdminRole))
-                    { 
-                        <div class="form-group pt-2 col-6">
-                            <label class="text-warning">شناسه یکتای پرداخت</label>
-                            <input asp-for="Authority" disabled class="form-control" />
-                        </div>
-                    }
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">کد رهگیری پرداخت</label>
-                    <input asp-for="RefId" disabled class="form-control" />
-                </div> 
+                    <label class="text-warning">تاریخ سفارش</label>
+                    <input asp-for="BookingDate" disabled class="form-control"/>
+                </div>
                 <div class="form-group pt-2 col-6">
-                    <label class="text-warning">تاریخ پرداخت</label>
-                    <input asp-for="PaymentDate" disabled class="form-control" />
-                    </div>
-                }
+                    <label class="text-warning">تاریخ ثبت رزرو</label>
+                    <input asp-for="CheckInDate" disabled class="form-control"/>
+                </div>
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">تاریخ ورود </label>
+                    <input asp-for="ActualCheckInDate" disabled class="form-control"/>
+                </div>
+
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">تاریخ اتملم روزو </label>
+                    <input asp-for="CheckOutDate" disabled class="form-control"/>
+                </div>
+                <div class="form-group pt-2 col-6">
+                    <label class="text-warning">تاریخ خروج</label>
+                    <input asp-for="ActualCheckOutDate" disabled class="form-control"/>
+                </div>
+
                 @if (Model.Status == SD.StatusApproved && User.IsInRole(SD.AdminRole))
                 {
                     <div class="form-group pt-2 col-6">
@@ -96,7 +88,33 @@
                         </select>
                     </div>
                 }
+                else
+                {
+                    <input asp-for="VillaNumber" hidden />
+                    <div class="form-group pt-2 col-6">
+                        <label class="text-warning">شماره ویلا</label>
+                        <input asp-for="VillaNumber" disabled class="form-control"/>
+                    </div>
+                }
+                @if (Model.IsPaymentSuccessful)
+                {
+                    if (User.IsInRole(SD.AdminRole))
+                    {
+                        <div class="form-group pt-2 col-6">
+                            <label class="text-warning">شناسه یکتای پرداخت</label>
+                            <input asp-for="Authority" disabled class="form-control"/>
+                        </div>
+                    }
 
+                    <div class="form-group pt-2 col-6">
+                        <label class="text-warning">کد رهگیری پرداخت</label>
+                        <input asp-for="RefId" disabled class="form-control"/>
+                    </div>
+                    <div class="form-group pt-2 col-6">
+                        <label class="text-warning">تاریخ پرداخت</label>
+                        <input asp-for="PaymentDate" disabled class="form-control"/>
+                    </div>
+                }
             </div>
             @if (User.IsInRole(SD.AdminRole))
             {
@@ -107,14 +125,15 @@
                         <i class="bi bi-check2-square"></i> &nbsp; ثبت ورود مهمان
                     </button>
                 }
+
                 @if (Model.Status == SD.StatusCheckedIn)
                 {
                     <button type="submit" asp-controller="Booking" asp-action="CheckOut"
-                            class="btn btn-success form-control my-1">
+                            class="btn btn-success form-control my-2">
                         <i class="bi bi-clipboard2-check"></i> &nbsp; Check Out / Complete Booking
                     </button>
                 }
             }
-            </form>
+        </form>
     </div>
 </div>
