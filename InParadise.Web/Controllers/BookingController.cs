@@ -2,6 +2,7 @@
 using InParadise.Application.Common.Interfaces;
 using InParadise.Application.Common.Utility;
 using InParadise.Domain.Entities;
+using InParadise.Infrastructure.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -78,6 +79,26 @@ namespace InParadise.Web.Controllers
         {
             var villa = _unitOfWork.VillaRepository.Get(v => v.Id == booking.VillaId);
             booking.TotalCost = villa.Price * booking.Nights;
+
+            var villas = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            var villaNumbersList = _unitOfWork.VillaNumberRepository.GetAll().ToList();
+            var bookedVillas = _unitOfWork.Booking
+                .GetAll(b => b.Status == SD.StatusApproved || b.Status == SD.StatusCheckedIn).ToList();
+
+            int roomsAvailable =
+                SD.VillaRoomsAvailableCount(villa.Id, villaNumbersList, booking.CheckInDate, booking.Nights,
+                    bookedVillas);
+
+            if (roomsAvailable == 0)
+            {
+                ViewData["Error"] = "این ویلا قبلا رزرو شده است.";
+                return RedirectToAction(nameof(FinalizeBooking), new
+                {
+                    VillaId = booking.VillaId,
+                    nights = booking.Nights,
+                    checkInDate = booking.CheckInDate
+                });
+            }
 
             booking.Status = SD.StatusPending;
 
