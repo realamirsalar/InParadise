@@ -30,16 +30,25 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">صفحه اصلی</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">بخش مدیریت</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="villa" asp-action="Index">ویلا ها</a></li>
-                                <li><a class="dropdown-item" asp-controller="VillaNumber" asp-action="Index">شماره ویلا ها</a></li>
-                                <li><hr class="dropdown-divider"/></li>
-                                <li><a class="dropdown-item" asp-controller="Amenity" asp-action="Index"> امکانات رفاهی</a></li>
-                                <li><a class="dropdown-item" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusApproved"> مدیریت سفارشات</a></li>
-                            </ul>
-                        </li>
+                        @if (User.IsInRole(SD.AdminRole))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">بخش مدیریت</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="villa" asp-action="Index">ویلا ها</a></li>
+                                    <li><a class="dropdown-item" asp-controller="VillaNumber" asp-action="Index">شماره ویلا ها</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><a class="dropdown-item" asp-controller="Amenity" asp-action="Index"> امکانات رفاهی</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusApproved"> مدیریت سفارشات</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Booking" asp-action="Index">مدیریت سفارشات</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial"/>
                 </div>
