@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="~/css/spinner.css" rel="stylesheet" />
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
-    <link href="c:\myworkspace\inparadise\inparadise.web\wwwroot\css\apexcharts.css" rel="stylesheet" />
+    <link href="~/css/apexcharts.css" rel="stylesheet" />
 </head>
 <body>
     <header>
@@ -33,7 +33,7 @@
     <div class="container-fluid">
         <div class="loading spinner" style="display:none;"></div>
         <nav id="sidbarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-            <div class="position-static pt-3">
+            <div class="position-fixed pt-3">
                 <ul class="navbar-nav">
                     <li>
                         <div class="text-muted small fw-bold text-uppercase px-3">
@@ -82,9 +82,11 @@
         
         
 
-        <main role="main" class="">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 w-100">
             <partial name="_Notification"/>
             @RenderBody()
+            </div>
         </main>
     </div>
 
@@ -99,7 +101,7 @@
 <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" asp-append-version="true"></script>
 @* <script src="~/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
     <script src="~/js/jquery.unobtrusive-ajax.min.js"></script> *@
-<script src="c:\myworkspace\inparadise\inparadise.web\wwwroot\js\apexcharts.js"></script>
+    <script src="~/js/apexcharts.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -9,8 +9,8 @@ namespace InParadise.Web.Controllers
     public class DashboardController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public static readonly int privousMonth = DateTime.Now.Month == 1 ? 12 : DateTime.Now.Month - 1;
-        public readonly DateTime privousMonthStartDate = new(DateTime.Now.Year, privousMonth, 1);
+        public static readonly int previousMonth = DateTime.Now.Month == 1 ? 12 : DateTime.Now.Month - 1;
+        public readonly DateTime previousMonthStartDate = new(DateTime.Now.Year, previousMonth, 1);
         public readonly DateTime currentMonthStartDate = new(DateTime.Now.Year, DateTime.Now.Month, 1);
 
         public DashboardController(IUnitOfWork unitOfWork)
@@ -31,27 +31,48 @@ namespace InParadise.Web.Controllers
             var countByCurrentMonth =
                 totalBooking.Count(b => b.BookingDate >= currentMonthStartDate && b.BookingDate <= DateTime.Now);
 
-            var countByPrivousMonth =
+            var countBypreviousMonth =
                 totalBooking.Count(b =>
-                    b.BookingDate >= privousMonthStartDate && b.BookingDate <= currentMonthStartDate);
+                    b.BookingDate >= previousMonthStartDate && b.BookingDate <= currentMonthStartDate);
 
+            return Json(GetRadialChartDataModel(totalBooking.Count(), countByCurrentMonth, countBypreviousMonth));
+        }
+
+        public async Task<IActionResult> GetTotalUserRadialChartData()
+        {
+            var totalUser =
+                _unitOfWork.User.GetAll();
+
+            var countByCurrentMonth =
+                totalUser.Count(u => u.CreateAt >= currentMonthStartDate && u.CreateAt <= DateTime.Now);
+
+            var countBypreviousMonth =
+                totalUser.Count(u => u.CreateAt >= previousMonthStartDate && u.CreateAt <= currentMonthStartDate);
+
+
+            return Json(GetRadialChartDataModel(totalUser.Count(), countByCurrentMonth, countBypreviousMonth));
+        }
+
+        private static RadialBarChartVM GetRadialChartDataModel(int totalCount, double currentMonthCount,
+            double prevMonthCount)
+        {
             RadialBarChartVM radialBarChartVm = new();
 
             int increaseDecreaseRation = 100;
 
-            if (countByPrivousMonth != 0)
+            if (prevMonthCount != 0)
             {
                 //محاسبه درصد افزایش نسبت به ماه قبل
                 increaseDecreaseRation =
-                    Convert.ToInt32((countByCurrentMonth - countByPrivousMonth) / countByPrivousMonth * 100);
+                    Convert.ToInt32((currentMonthCount - prevMonthCount) / prevMonthCount * 100);
             }
 
-            radialBarChartVm.TotalCount = totalBooking.Count();
-            radialBarChartVm.CountInCurrentMonth = countByCurrentMonth;
-            radialBarChartVm.HasRatioIncreased = countByCurrentMonth > countByPrivousMonth;
+            radialBarChartVm.TotalCount = totalCount;
+            radialBarChartVm.CountInCurrentMonth = Convert.ToInt32(currentMonthCount);
+            radialBarChartVm.HasRatioIncreased = currentMonthCount > prevMonthCount;
             radialBarChartVm.Series = new int[] { increaseDecreaseRation };
 
-            return Json(radialBarChartVm);
+            return radialBarChartVm;
         }
     }
 }
