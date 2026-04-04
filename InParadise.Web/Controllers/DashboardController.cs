@@ -53,7 +53,26 @@ namespace InParadise.Web.Controllers
             return Json(GetRadialChartDataModel(totalUser.Count(), countByCurrentMonth, countBypreviousMonth));
         }
 
-        private static RadialBarChartVM GetRadialChartDataModel(int totalCount, double currentMonthCount,
+        public async Task<IActionResult> GetTotalRevenueRadialChartData()
+        {
+            var totalBooking =
+                _unitOfWork.Booking.GetAll(b => b.Status != SD.StatusPending || b.Status == SD.StatusCancelled);
+
+            var totalRevenue = Convert.ToInt64(totalBooking.Sum(b => b.TotalCost));
+
+            var countByCurrentMonth =
+                totalBooking.Where(b => b.BookingDate >= currentMonthStartDate && b.BookingDate <= DateTime.Now)
+                    .Sum(b => b.TotalCost);
+
+            var countBypreviousMonth =
+                totalBooking.Where(b =>
+                        b.BookingDate >= previousMonthStartDate && b.BookingDate <= currentMonthStartDate)
+                    .Sum(b => b.TotalCost);
+
+            return Json(GetRadialChartDataModel(totalBooking.Count(), countByCurrentMonth, countBypreviousMonth));
+        }
+
+        private static RadialBarChartVM GetRadialChartDataModel(long totalCount, double currentMonthCount,
             double prevMonthCount)
         {
             RadialBarChartVM radialBarChartVm = new();
