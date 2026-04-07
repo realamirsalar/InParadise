@@ -20,6 +20,7 @@ function loadRadialBarChart(id, data) {
                 dataLabels: {
                     value: {
                         offsetY: -10,
+                        color: chartColors[0],
                     }
                 }
             }
