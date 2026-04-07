@@ -72,6 +72,29 @@ namespace InParadise.Web.Controllers
             return Json(GetRadialChartDataModel(totalBooking.Count(), countByCurrentMonth, countBypreviousMonth));
         }
 
+        public async Task<IActionResult> GetTotalBookingPaiChart()
+        {
+            var totalBooking =
+                _unitOfWork.Booking.GetAll(b =>
+                    b.BookingDate >= DateTime.Now.AddDays(-30) &&
+                    (b.Status != SD.StatusPending || b.Status == SD.StatusCancelled));
+
+            //مشتری هایی که فقط یک سفارش از ابتدا داشته ان یا همان مشتریان جدید
+            var customerWithOneBooking =
+                totalBooking.GroupBy(b => b.UserId).Where(x => x.Count() == 1).Select(x => x.Key).ToList();
+
+            int bookingByNewCustomer = customerWithOneBooking.Count;
+            int bookingByReturningCustomer = totalBooking.Count() - bookingByNewCustomer;
+
+            PieChartVM pieChartVm = new()
+            {
+                Lables = new string[] { "رزور های مشتریان جدید", "روزو های مشتریان قدیمی" },
+                Series = new decimal[] { bookingByNewCustomer, bookingByNewCustomer }
+            };
+
+            return Json(pieChartVm);
+        }
+
         private static RadialBarChartVM GetRadialChartDataModel(long totalCount, double currentMonthCount,
             double prevMonthCount)
         {
