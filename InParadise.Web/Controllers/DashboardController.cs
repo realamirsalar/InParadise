@@ -95,6 +95,71 @@ namespace InParadise.Web.Controllers
             return Json(pieChartVm);
         }
 
+        public async Task<IActionResult> GetMemberAndBookingLineChartData()
+        {
+            var bookingData = _unitOfWork.Booking.GetAll(b => b.BookingDate >= DateTime.Now.AddDays(-30))
+                .GroupBy(b => b.BookingDate.Date).Select(u => new
+                {
+                    DateTime = u.Key,
+                    NewBookingCount = u.Count()
+                });
+            var customerData = _unitOfWork.User.GetAll(b => b.CreateAt >= DateTime.Now.AddDays(-30))
+                .GroupBy(b => b.CreateAt.Date).Select(u => new
+                {
+                    DateTime = u.Key,
+                    NewCustomerCount = u.Count()
+                });
+
+            var leftJoin =
+                bookingData.GroupJoin(customerData, booking => booking.DateTime, customer => customer.DateTime,
+                    (booking, customer) => new
+                    {
+                        booking.DateTime,
+                        booking.NewBookingCount,
+                        NewCustomerCount = customer.Select(x => x.NewCustomerCount).SingleOrDefault()
+                    });
+
+
+            var rightJoin =
+                customerData.GroupJoin(bookingData, customer => customer.DateTime, booking => booking.DateTime,
+                    (customer, booking) => new
+                    {
+                        customer.DateTime,
+                        NewBookingCount = booking.Select(x => x.NewBookingCount).SingleOrDefault(),
+                        customer.NewCustomerCount
+                    });
+
+            var mergeData = leftJoin.Union(rightJoin).OrderBy(x => x.DateTime).ToList();
+
+            var newBookingDate = mergeData.Select(m => m.NewBookingCount).ToArray();
+            var newCustomerDate = mergeData.Select(m => m.NewCustomerCount).ToArray();
+            var categories = mergeData.Select(m => m.DateTime.ToString("MM/dd/yyyy")).ToArray();
+
+            List<ChartData> chartDataList = new List<ChartData>()
+            {
+                new ChartData()
+                {
+                    Name = "رزرو های جدید",
+                    Data = newBookingDate
+                },
+                new ChartData()
+                {
+                    Name = " کاربران جدید",
+                    Data = newCustomerDate
+                }
+            };
+
+            LineChartVM lineChartVM = new LineChartVM()
+            {
+                Categories = categories,
+                Series = chartDataList
+            };
+
+
+            return Json(bookingData);
+        }
+
+
         private static RadialBarChartVM GetRadialChartDataModel(long totalCount, double currentMonthCount,
             double prevMonthCount)
         {
