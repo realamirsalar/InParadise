@@ -80,6 +80,7 @@ namespace InParadise.Web.Controllers
             var villa = _unitOfWork.VillaRepository.Get(v => v.Id == booking.VillaId);
             booking.TotalCost = villa.Price * booking.Nights;
 
+
             var villas = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
             var villaNumbersList = _unitOfWork.VillaNumberRepository.GetAll().ToList();
             var bookedVillas = _unitOfWork.Booking
@@ -101,6 +102,7 @@ namespace InParadise.Web.Controllers
             }
 
             booking.Status = SD.StatusPending;
+            booking.BookingDate = DateTime.Now;
 
             _unitOfWork.Booking.Insert(booking);
             _unitOfWork.Save();

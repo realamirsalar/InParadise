@@ -89,7 +89,7 @@ namespace InParadise.Web.Controllers
             PieChartVM pieChartVm = new()
             {
                 Lables = new string[] { "رزور های  جدید", "روزو های مشتریان قدیمی" },
-                Series = new decimal[] { 3, 5 }
+                Series = new decimal[] { bookingByNewCustomer, bookingByReturningCustomer }
             };
 
             return Json(pieChartVm);
