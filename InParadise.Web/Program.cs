@@ -1,4 +1,6 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Services.Implementation;
+using InParadise.Application.Services.Intrface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using InParadise.Infrastructure.Repository;
@@ -20,6 +22,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFramework
 
 //Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//services
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 //Authorize (به طور پیش فرض ننویسی هم همین هاست )
 builder.Services.ConfigureApplicationCookie(option =>

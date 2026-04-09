@@ -1,7 +1,8 @@
-﻿using System;
+﻿using InParadise.Application.Common.DTO;
+using InParadise.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using InParadise.Domain.Entities;
 
 namespace InParadise.Application.Common.Utility
 {
@@ -60,6 +61,29 @@ namespace InParadise.Application.Common.Utility
             }
 
             return finalAvailableRoomForAllNights;
+        }
+
+
+        public static RadialBarChartDto GetRadialChartDataModel(long totalCount, double currentMonthCount,
+            double prevMonthCount)
+        {
+            RadialBarChartDto RadialBarChartDto = new();
+
+            int increaseDecreaseRation = 100;
+
+            if (prevMonthCount != 0)
+            {
+                //محاسبه درصد افزایش نسبت به ماه قبل
+                increaseDecreaseRation =
+                    Convert.ToInt32((currentMonthCount - prevMonthCount) / prevMonthCount * 100);
+            }
+
+            RadialBarChartDto.TotalCount = totalCount;
+            RadialBarChartDto.CountInCurrentMonth = Convert.ToInt32(currentMonthCount);
+            RadialBarChartDto.HasRatioIncreased = currentMonthCount > prevMonthCount;
+            RadialBarChartDto.Series = new int[] { increaseDecreaseRation };
+
+            return RadialBarChartDto;
         }
     }
 }

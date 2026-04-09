@@ -1,11 +1,158 @@
-﻿using System;
+﻿using InParadise.Application.Common.DTO;
+using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Services.Intrface;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using InParadise.Application.Services.Intrface;
+using InParadise.Application.Common.Utility;
 
 namespace InParadise.Application.Services.Implementation
 {
     public class DashboardService : IDashboardService
     {
+        private readonly IUnitOfWork _unitOfWork;
+        public static readonly int previousMonth = DateTime.Now.Month == 1 ? 12 : DateTime.Now.Month - 1;
+        public readonly DateTime previousMonthStartDate = new(DateTime.Now.Year, previousMonth, 1);
+        public readonly DateTime currentMonthStartDate = new(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+        public DashboardService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<RadialBarChartDto> GetTotalBookingRadialChartData()
+        {
+            var totalBooking =
+                _unitOfWork.Booking.GetAll(b => b.Status != SD.StatusPending || b.Status == SD.StatusCancelled);
+
+            var countByCurrentMonth =
+                totalBooking.Count(b => b.BookingDate >= currentMonthStartDate && b.BookingDate <= DateTime.Now);
+
+            var countBypreviousMonth =
+                totalBooking.Count(b =>
+                    b.BookingDate >= previousMonthStartDate && b.BookingDate <= currentMonthStartDate);
+
+            return SD.GetRadialChartDataModel(totalBooking.Count(), countByCurrentMonth, countBypreviousMonth);
+        }
+
+        public async Task<RadialBarChartDto> GetTotalUserRadialChartData()
+        {
+            var totalUser =
+                _unitOfWork.User.GetAll();
+
+            var countByCurrentMonth =
+                totalUser.Count(u => u.CreateAt >= currentMonthStartDate && u.CreateAt <= DateTime.Now);
+
+            var countBypreviousMonth =
+                totalUser.Count(u => u.CreateAt >= previousMonthStartDate && u.CreateAt <= currentMonthStartDate);
+
+
+            return SD.GetRadialChartDataModel(totalUser.Count(), countByCurrentMonth, countBypreviousMonth);
+        }
+
+        public async Task<RadialBarChartDto> GetTotalRevenueRadialChartData()
+        {
+            var totalBooking =
+                _unitOfWork.Booking.GetAll(b => b.Status != SD.StatusPending || b.Status == SD.StatusCancelled);
+
+            var totalRevenue = Convert.ToInt64(totalBooking.Sum(b => b.TotalCost));
+
+            var countByCurrentMonth =
+                totalBooking.Where(b => b.BookingDate >= currentMonthStartDate && b.BookingDate <= DateTime.Now)
+                    .Sum(b => b.TotalCost);
+
+            var countBypreviousMonth =
+                totalBooking.Where(b =>
+                        b.BookingDate >= previousMonthStartDate && b.BookingDate <= currentMonthStartDate)
+                    .Sum(b => b.TotalCost);
+
+            return SD.GetRadialChartDataModel(totalBooking.Count(), countByCurrentMonth, countBypreviousMonth);
+        }
+
+        public async Task<PieChartDto> GetBookingPieChartData()
+        {
+            var totalBooking =
+                _unitOfWork.Booking.GetAll(b =>
+                    b.BookingDate >= DateTime.Now.AddDays(-30) &&
+                    (b.Status != SD.StatusPending || b.Status == SD.StatusCancelled));
+
+            //مشتری هایی که فقط یک سفارش از ابتدا داشته ان یا همان مشتریان جدید
+            var customerWithOneBooking =
+                totalBooking.GroupBy(b => b.UserId).Where(x => x.Count() == 1).Select(x => x.Key).ToList();
+
+            int bookingByNewCustomer = customerWithOneBooking.Count();
+            int bookingByReturningCustomer = totalBooking.Count() - bookingByNewCustomer;
+
+            PieChartDto PieChartDto = new()
+            {
+                Lables = new string[] { "رزور های  جدید", "روزو های مشتریان قدیمی" },
+                Series = new decimal[] { bookingByNewCustomer, bookingByReturningCustomer }
+            };
+
+            return PieChartDto;
+        }
+
+        public async Task<LineChartDto> GetMemberAndBookingLineChartData()
+        {
+            var bookingData = _unitOfWork.Booking.GetAll(b => b.BookingDate >= DateTime.Now.AddDays(-30))
+                .GroupBy(b => b.BookingDate.Date).Select(u => new
+                {
+                    DateTime = u.Key,
+                    NewBookingCount = u.Count()
+                });
+            var customerData = _unitOfWork.User.GetAll(b => b.CreateAt >= DateTime.Now.AddDays(-30))
+                .GroupBy(b => b.CreateAt.Date).Select(u => new
+                {
+                    DateTime = u.Key,
+                    NewCustomerCount = u.Count()
+                });
+
+            var leftJoin =
+                bookingData.GroupJoin(customerData, booking => booking.DateTime, customer => customer.DateTime,
+                    (booking, customer) => new
+                    {
+                        booking.DateTime,
+                        booking.NewBookingCount,
+                        NewCustomerCount = customer.Select(x => x.NewCustomerCount).SingleOrDefault()
+                    });
+
+
+            var rightJoin =
+                customerData.GroupJoin(bookingData, customer => customer.DateTime, booking => booking.DateTime,
+                    (customer, booking) => new
+                    {
+                        customer.DateTime,
+                        NewBookingCount = booking.Select(x => x.NewBookingCount).SingleOrDefault(),
+                        customer.NewCustomerCount
+                    });
+
+            var mergeData = leftJoin.Union(rightJoin).OrderBy(x => x.DateTime).ToList();
+
+            var newBookingDate = mergeData.Select(m => m.NewBookingCount).ToArray();
+            var newCustomerDate = mergeData.Select(m => m.NewCustomerCount).ToArray();
+            var categories = mergeData.Select(m => m.DateTime.ToString("MM/dd/yyyy")).ToArray();
+
+            List<ChartData> chartDataList = new List<ChartData>()
+            {
+                new ChartData()
+                {
+                    Name = "رزرو های جدید",
+                    Data = newBookingDate
+                },
+                new ChartData()
+                {
+                    Name = " کاربران جدید",
+                    Data = newCustomerDate
+                }
+            };
+
+            LineChartDto LineChartDto = new LineChartDto()
+            {
+                Categories = categories,
+                Series = chartDataList
+            };
+
+            return LineChartDto;
+        }
     }
 }
