@@ -156,7 +156,7 @@ namespace InParadise.Web.Controllers
             };
 
 
-            return Json(bookingData);
+            return Json(lineChartVM);
         }
 
 
