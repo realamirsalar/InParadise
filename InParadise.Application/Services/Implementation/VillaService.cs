@@ -20,13 +20,23 @@ namespace InParadise.Application.Services.Implementation
         }
 
 
-        public IEnumerable<Villa> GetAllVillas()
+        public IEnumerable<Villa> GetAllVillas(string? includeProperties)
         {
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                return _UnitOfWork.VillaRepository.GetAll(includeProperties: includeProperties);
+            }
+
             return _UnitOfWork.VillaRepository.GetAll();
         }
 
-        public Villa GetVillaById(int id)
+        public Villa GetVillaById(int id, string? includeProperties)
         {
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                return _UnitOfWork.VillaRepository.Get(v => v.Id == id, includeProperties: includeProperties);
+            }
+
             return _UnitOfWork.VillaRepository.Get(v => v.Id == id);
         }
 
