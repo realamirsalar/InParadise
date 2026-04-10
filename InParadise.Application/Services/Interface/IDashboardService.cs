@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using InParadise.Application.Common.DTO;
+﻿using InParadise.Application.Common.DTO;
 
-namespace InParadise.Application.Services.Intrface
+namespace InParadise.Application.Services.Interface
 {
     public interface IDashboardService
     {

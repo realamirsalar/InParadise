@@ -1,7 +1,7 @@
 ﻿using InParadise.Application.Common.DTO;
 using InParadise.Application.Common.Interfaces;
 using InParadise.Application.Common.Utility;
-using InParadise.Application.Services.Intrface;
+using InParadise.Application.Services.Interface;
 using InParadise.Infrastructure.Repository;
 using InParadise.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;

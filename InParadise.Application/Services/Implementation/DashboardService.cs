@@ -1,10 +1,10 @@
 ﻿using InParadise.Application.Common.DTO;
 using InParadise.Application.Common.Interfaces;
-using InParadise.Application.Services.Intrface;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using InParadise.Application.Common.Utility;
+using InParadise.Application.Services.Interface;
 
 namespace InParadise.Application.Services.Implementation
 {

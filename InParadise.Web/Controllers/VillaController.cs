@@ -1,5 +1,5 @@
 ﻿using InParadise.Application.Common.Interfaces;
-using InParadise.Application.Services.Intrface;
+using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;

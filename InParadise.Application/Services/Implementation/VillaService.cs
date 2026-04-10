@@ -1,10 +1,10 @@
 ﻿using InParadise.Application.Common.Interfaces;
-using InParadise.Application.Services.Intrface;
 using InParadise.Domain.Entities;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using InParadise.Application.Services.Interface;
 
 namespace InParadise.Application.Services.Implementation
 {
@@ -104,9 +104,10 @@ namespace InParadise.Application.Services.Implementation
 
                     _UnitOfWork.VillaRepository.Delete(dbVilla);
                     _UnitOfWork.Save();
+                    return true;
                 }
 
-                return true;
+                return false;
             }
             catch (Exception)
             {
