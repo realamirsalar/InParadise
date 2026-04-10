@@ -36,6 +36,18 @@ namespace InParadise.Infrastructure.Data
                 {
                     _roleManager.CreateAsync(new IdentityRole(SD.AdminRole)).Wait();
                     _roleManager.CreateAsync(new IdentityRole(SD.CustomerRole)).Wait();
+
+                    _userManager.CreateAsync(new ApplicationUser
+                    {
+                        UserName = "amirsalar@gmail.com",
+                        Email = "amirsalar@gmail.com",
+                        Name = "amirsalar kheiry",
+                        NormalizedEmail = "AMIRSALAR@GMAIL.COM",
+                        NormalizedUserName = "AMIRSALAR@GMAIL.COM",
+                        PhoneNumber = "09036548295",
+                    }, "Admin123*").GetAwaiter().GetResult();
+                    ApplicationUser user = _db.ApplicationUsers.SingleOrDefault(u => u.Email == "amirsalar@gmail.com");
+                    _userManager.AddToRoleAsync(user, SD.AdminRole).GetAwaiter().GetResult();
                 }
             }
             catch (Exception e)
