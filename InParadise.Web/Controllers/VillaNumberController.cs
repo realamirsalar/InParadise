@@ -1,4 +1,5 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using InParadise.Web.ViewModels;
@@ -10,16 +11,19 @@ namespace InParadise.Web.Controllers
 {
     public class VillaNumberController : Controller
     {
-        private readonly IUnitOfWork _UnitOfWork;
+        private readonly IVillaNumberService _villaNumberService;
+        private readonly IVillaService _villaService;
 
-        public VillaNumberController(IUnitOfWork unitOfWork)
+
+        public VillaNumberController(IVillaNumberService villaNumbrerService, IVillaService villaService)
         {
-            _UnitOfWork = unitOfWork;
+            _villaNumberService = villaNumbrerService;
+            _villaService = villaService;
         }
 
         public IActionResult Index()
         {
-            var villaNumbers = _UnitOfWork.VillaNumberRepository.GetAll(null, "Villa");
+            var villaNumbers = _villaNumberService.GetAllVillaNumbers("Villa");
             return View(villaNumbers);
         }
 
@@ -28,7 +32,7 @@ namespace InParadise.Web.Controllers
         {
             VillaNumberVM villaNumber = new()
             {
-                VillaList = _UnitOfWork.VillaRepository.GetAll().ToList().Select(v => new SelectListItem()
+                VillaList = _villaService.GetAllVillas().ToList().Select(v => new SelectListItem()
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
@@ -47,14 +51,12 @@ namespace InParadise.Web.Controllers
         public IActionResult Create(VillaNumberVM obj)
         {
             //ModelState.Remove("Villa");
-            bool roomIsExist = _UnitOfWork.VillaNumberRepository
-                .Any(v => v.NumberOfVilla == obj.VillaNumber.NumberOfVilla);
+            bool roomIsExist = _villaNumberService.CheckVillaNumberExist(obj.VillaNumber.NumberOfVilla);
 
             if (ModelState.IsValid && !roomIsExist)
             {
                 //db.VillaNumbers.Add(villaNumber);
-                _UnitOfWork.VillaNumberRepository.Insert(obj.VillaNumber);
-                _UnitOfWork.Save();
+                _villaNumberService.CreateVillaNumber(obj.VillaNumber);
                 TempData["success"] = "شماره ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "VillaNumber");
             }
@@ -64,7 +66,7 @@ namespace InParadise.Web.Controllers
                 TempData["error"] = "شماره ویلایی قبلا با این شماره ثبت شده است!";
             }
 
-            obj.VillaList = _UnitOfWork.VillaRepository.GetAll().Select(v => new SelectListItem()
+            obj.VillaList = _villaService.GetAllVillas().Select(v => new SelectListItem()
             {
                 Text = v.Name,
                 Value = v.Id.ToString()
@@ -77,12 +79,12 @@ namespace InParadise.Web.Controllers
         {
             VillaNumberVM villaNumber = new()
             {
-                VillaList = _UnitOfWork.VillaRepository.GetAll().Select(v => new SelectListItem()
+                VillaList = _villaService.GetAllVillas().Select(v => new SelectListItem()
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
                 }),
-                VillaNumber = _UnitOfWork.VillaNumberRepository.Get(vn => vn.NumberOfVilla == VillaNumberId)
+                VillaNumber = _villaNumberService.GetVillaNumberById(VillaNumberId)
             };
             if (villaNumber is null)
             {
@@ -97,13 +99,12 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _UnitOfWork.VillaNumberRepository.Update(villaNumberVM.VillaNumber);
-                _UnitOfWork.Save();
+                _villaNumberService.UpdateVillaNumber(villaNumberVM.VillaNumber);
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "VillaNumber");
             }
 
-            villaNumberVM.VillaList = _UnitOfWork.VillaRepository.GetAll().Select(v => new SelectListItem()
+            villaNumberVM.VillaList = _villaService.GetAllVillas().Select(v => new SelectListItem()
             {
                 Text = v.Name,
                 Value = v.Id.ToString()
@@ -116,12 +117,12 @@ namespace InParadise.Web.Controllers
         {
             VillaNumberVM villaNumber = new()
             {
-                VillaList = _UnitOfWork.VillaRepository.GetAll().Select(v => new SelectListItem()
+                VillaList = _villaService.GetAllVillas().Select(v => new SelectListItem()
                 {
                     Text = v.Name,
                     Value = v.Id.ToString()
                 }),
-                VillaNumber = _UnitOfWork.VillaNumberRepository.Get(vn => vn.NumberOfVilla == VillaNumberId)
+                VillaNumber = _villaNumberService.GetVillaNumberById(VillaNumberId)
             };
             if (villaNumber is null)
             {
@@ -135,13 +136,11 @@ namespace InParadise.Web.Controllers
         public IActionResult Delete(VillaNumberVM villaNuberNumberVm)
         {
             VillaNumber? dbVillanumber =
-                _UnitOfWork.VillaNumberRepository.Get(v =>
-                    v.NumberOfVilla == villaNuberNumberVm.VillaNumber.NumberOfVilla);
+                _villaNumberService.GetVillaNumberById(villaNuberNumberVm.VillaNumber.NumberOfVilla);
 
             if (dbVillanumber is not null)
             {
-                _UnitOfWork.VillaNumberRepository.Delete(dbVillanumber);
-                _UnitOfWork.Save();
+                _villaNumberService.DeleteVillaNumber(dbVillanumber.NumberOfVilla);
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "VillaNumber");
             }

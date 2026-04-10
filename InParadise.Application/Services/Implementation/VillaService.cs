@@ -20,7 +20,7 @@ namespace InParadise.Application.Services.Implementation
         }
 
 
-        public IEnumerable<Villa> GetAllVillas(string? includeProperties)
+        public IEnumerable<Villa> GetAllVillas(string? includeProperties = null)
         {
             if (!string.IsNullOrEmpty(includeProperties))
             {
@@ -30,7 +30,7 @@ namespace InParadise.Application.Services.Implementation
             return _UnitOfWork.VillaRepository.GetAll();
         }
 
-        public Villa GetVillaById(int id, string? includeProperties)
+        public Villa GetVillaById(int id, string? includeProperties = null)
         {
             if (!string.IsNullOrEmpty(includeProperties))
             {

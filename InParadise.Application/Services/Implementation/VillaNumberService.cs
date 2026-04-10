@@ -18,7 +18,7 @@ namespace InParadise.Application.Services.Implementation
         }
 
 
-        public IEnumerable<VillaNumber> GetAllVillaNumbers(string? includeProperties)
+        public IEnumerable<VillaNumber> GetAllVillaNumbers(string? includeProperties = null)
         {
             if (!string.IsNullOrEmpty(includeProperties))
             {
@@ -28,7 +28,7 @@ namespace InParadise.Application.Services.Implementation
             return _UnitOfWork.VillaNumberRepository.GetAll();
         }
 
-        public VillaNumber GetVillaNumberById(int id, string? includeProperties)
+        public VillaNumber GetVillaNumberById(int id, string? includeProperties = null)
         {
             if (!string.IsNullOrEmpty(includeProperties))
             {
@@ -70,6 +70,11 @@ namespace InParadise.Application.Services.Implementation
             {
                 return false;
             }
+        }
+
+        public bool CheckVillaNumberExist(int villaNumberId)
+        {
+            return _UnitOfWork.VillaNumberRepository.Any(v => v.NumberOfVilla == villaNumberId);
         }
     }
 }
