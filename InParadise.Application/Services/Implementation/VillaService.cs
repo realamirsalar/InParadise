@@ -1,10 +1,11 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Common.Utility;
+using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using InParadise.Application.Services.Interface;
 
 namespace InParadise.Application.Services.Implementation
 {
@@ -123,6 +124,24 @@ namespace InParadise.Application.Services.Implementation
             {
                 return false;
             }
+        }
+
+        public IEnumerable<Villa> GetVillasAvailabilityByDate(int nights, DateOnly checkInDate)
+        {
+            var villaList = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            var villaNumbersList = _UnitOfWork.VillaNumberRepository.GetAll().ToList();
+            var bookedVillas = _UnitOfWork.Booking
+                .GetAll(b => b.Status == SD.StatusApproved || b.Status == SD.StatusCheckedIn).ToList();
+
+            foreach (var Villa in villaList)
+            {
+                int roomsAvailable =
+                    SD.VillaRoomsAvailableCount(Villa.Id, villaNumbersList, checkInDate, nights, bookedVillas);
+
+                Villa.IsAvailable = roomsAvailable > 0 ? true : false;
+            }
+
+            return villaList;
         }
     }
 }
