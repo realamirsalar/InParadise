@@ -1,4 +1,5 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Services.Intrface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -9,18 +10,16 @@ namespace InParadise.Web.Controllers
     [Authorize]
     public class VillaController : Controller
     {
-        private readonly IUnitOfWork _UnitOfWork;
-        private readonly IWebHostEnvironment _WebHostEnvironment;
+        private readonly IVillaService _villaService;
 
-        public VillaController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public VillaController(IVillaService villaService)
         {
-            _UnitOfWork = unitOfWork;
-            _WebHostEnvironment = webHostEnvironment;
+            _villaService = villaService;
         }
 
         public IActionResult Index()
         {
-            var villas = _UnitOfWork.VillaRepository.GetAll();
+            var villas = _villaService.GetAllVillas();
             return View(villas);
         }
 
@@ -35,25 +34,7 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (villa.Image != null)
-                {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
-                    string imagePath = Path.Combine(_WebHostEnvironment.WebRootPath, @"images\Villa");
-
-                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
-                    {
-                        villa.Image.CopyTo(fileStream);
-                    }
-
-                    villa.ImageUrl = @"\images\Villa\" + fileName;
-                }
-                else
-                {
-                    villa.ImageUrl = "https://placehold.co/600x400";
-                }
-
-                _UnitOfWork.VillaRepository.Insert(villa);
-                _UnitOfWork.Save();
+                _villaService.CreateVilla(villa);
                 TempData["success"] = "ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -65,7 +46,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Update(int VillaId)
         {
-            Villa? villa = _UnitOfWork.VillaRepository.Get(v => v.Id == VillaId);
+            Villa? villa = _villaService.GetVillaById(VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -77,34 +58,9 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult Update(Villa villa)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && villa.Id > 0)
             {
-                if (villa.Image != null)
-                {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
-                    string imagePath = Path.Combine(_WebHostEnvironment.WebRootPath, @"images\Villa");
-
-                    if (!String.IsNullOrEmpty(villa.ImageUrl))
-                    {
-                        string oldPath = Path.Combine(_WebHostEnvironment.WebRootPath, villa.ImageUrl.TrimStart('\\'));
-
-                        if (System.IO.File.Exists(oldPath))
-                        {
-                            System.IO.File.Delete(oldPath);
-                        }
-                    }
-
-                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
-                    {
-                        villa.Image.CopyTo(fileStream);
-                    }
-
-                    villa.ImageUrl = @"\images\Villa\" + fileName;
-                }
-
-
-                _UnitOfWork.VillaRepository.Update(villa);
-                _UnitOfWork.Save();
+                _villaService.UpdateVilla(villa);
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction("Index", "Villa");
             }
@@ -116,7 +72,7 @@ namespace InParadise.Web.Controllers
         [HttpGet]
         public IActionResult Delete(int VillaId)
         {
-            Villa? villa = _UnitOfWork.VillaRepository.Get(v => v.Id == VillaId);
+            Villa? villa = _villaService.GetVillaById(VillaId);
             if (villa is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -128,28 +84,17 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa villa)
         {
-            Villa? dbVilla = _UnitOfWork.VillaRepository.Get(v => v.Id == villa.Id);
-
-            if (dbVilla is not null)
+            var deleted = _villaService.DeleteVilla(villa.Id);
+            if (deleted)
             {
-                if (!String.IsNullOrEmpty(dbVilla.ImageUrl))
-                {
-                    string oldPath = Path.Combine(_WebHostEnvironment.WebRootPath, dbVilla.ImageUrl.TrimStart('\\'));
-
-                    if (System.IO.File.Exists(oldPath))
-                    {
-                        System.IO.File.Delete(oldPath);
-                    }
-                }
-
-                _UnitOfWork.VillaRepository.Delete(dbVilla);
-                _UnitOfWork.Save();
                 TempData["success"] = "ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction("Index", "Villa");
             }
-
-            TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
-            return View(villa);
+            else
+            {
+                TempData["error"] = "عملیات ناموفق بود لطفا مجددا اقدام نمایید";
+                return View(villa);
+            }
         }
     }
 }

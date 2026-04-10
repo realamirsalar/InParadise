@@ -14,16 +14,17 @@ builder.Services.AddControllersWithViews();
 //Database and connection string
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 
 //Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 
-//Repository
+//DI
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-//services
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IVillaService, VillaService>();
 
 //Authorize (به طور پیش فرض ننویسی هم همین هاست )
 builder.Services.ConfigureApplicationCookie(option =>

@@ -12,6 +12,6 @@ namespace InParadise.Application.Services.Intrface
         Villa GetVillaById(int id);
         void CreateVilla(Villa villa);
         void UpdateVilla(Villa villa);
-        void DeleteVilla(int id);
+        bool DeleteVilla(int id);
     }
 }
