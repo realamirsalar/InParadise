@@ -1,5 +1,6 @@
 ﻿using InParadise.Application.Common.Interfaces;
 using InParadise.Application.Common.Utility;
+using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Repository;
 using InParadise.Web.ViewModels;
@@ -13,16 +14,18 @@ namespace InParadise.Web.Controllers
     [Authorize(Roles = SD.AdminRole)]
     public class AmenityController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAmenityService _amenityService;
+        private readonly IVillaService _villaService;
 
-        public AmenityController(IUnitOfWork unitOfWork)
+        public AmenityController(IAmenityService amenityService, IVillaService villaService)
         {
-            _unitOfWork = unitOfWork;
+            _amenityService = amenityService;
+            _villaService = villaService;
         }
 
         public IActionResult Index()
         {
-            var amenity = _unitOfWork.AmenityRepository.GetAll(includeProperties: "Villa");
+            var amenity = _amenityService.GetAllAmenities("Villa");
             return View(amenity);
         }
 
@@ -31,7 +34,7 @@ namespace InParadise.Web.Controllers
         {
             AmenityVM amenityVM = new AmenityVM()
             {
-                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
@@ -45,13 +48,12 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.AmenityRepository.Insert(amenityVM.Amenity);
-                _unitOfWork.Save();
+                _amenityService.CreateAmenity(amenityVM.Amenity);
                 TempData["success"] = "امکان رفاهی ویلای شما با موفقیت ثبت گردید!";
                 return RedirectToAction(nameof(Index));
             }
 
-            amenityVM.VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+            amenityVM.VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -65,12 +67,12 @@ namespace InParadise.Web.Controllers
         {
             AmenityVM amenityVM = new AmenityVM
             {
-                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                Amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId)
+                Amenity = _amenityService.GetAmenityById(amenityId)
             };
             if (amenityVM.Amenity == null)
             {
@@ -85,13 +87,12 @@ namespace InParadise.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.AmenityRepository.Update(amenityVM.Amenity);
-                _unitOfWork.Save();
+                _amenityService.UpdateAmenity(amenityVM.Amenity);
                 TempData["success"] = "تغییرات شما با موقفیت اعمال گردید!";
                 return RedirectToAction(nameof(Index));
             }
 
-            amenityVM.VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+            amenityVM.VillaList = _amenityService.GetAllAmenities().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -105,12 +106,12 @@ namespace InParadise.Web.Controllers
         {
             AmenityVM? amenityVM = new AmenityVM()
             {
-                VillaList = _unitOfWork.VillaRepository.GetAll().Select(u => new SelectListItem
+                VillaList = _villaService.GetAllVillas().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                Amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityId)
+                Amenity = _amenityService.GetAmenityById(amenityId)
             };
             if (amenityVM.Amenity is null)
             {
@@ -123,11 +124,9 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public IActionResult Delete(AmenityVM amenityVM)
         {
-            Amenity? amenity = _unitOfWork.AmenityRepository.Get(a => a.Id == amenityVM.Amenity.Id);
-            if (amenity is not null)
+            var deleted = _amenityService.DeleteAmenity(amenityVM.Amenity.Id);
+            if (deleted)
             {
-                _unitOfWork.AmenityRepository.Delete(amenity);
-                _unitOfWork.Save();
                 TempData["success"] = "امکان رفاهی ویلای شما با موفقیت حذف گردید!";
                 return RedirectToAction(nameof(Index));
             }

@@ -26,6 +26,7 @@ builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IVillaService, VillaService>();
 builder.Services.AddScoped<IVillaNumberService, VillaNumberService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
 
 //Authorize (به طور پیش فرض ننویسی هم همین هاست )
 builder.Services.ConfigureApplicationCookie(option =>
