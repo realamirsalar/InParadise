@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using InParadise.Domain.Entities;
 
@@ -15,8 +16,11 @@ namespace InParadise.Application.Services.Interface
         IEnumerable<Booking> GetAllBooks(string? userId = "", string? statusFilter = "",
             string? IncludeProperties = null);
 
+        Booking FinalBooking(Booking booking);
+
         public void UpdateStatus(int bookingId, string bookingStatus, bool isPay, int villaNumber);
         public void UpdatePayment(int bookingId, string authority, string paymentGetWay, string? refId);
+
 
         List<int> AssignAvailableVillaNumberByVilla(int villaId);
     }

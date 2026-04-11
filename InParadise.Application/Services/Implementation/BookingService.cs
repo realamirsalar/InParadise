@@ -12,14 +12,17 @@ namespace InParadise.Application.Services.Implementation
     public class BookingService : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IVillaService _villaService;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public BookingService(IUnitOfWork unitOfWork, HttpClient httpClient, IConfiguration configuration)
+        public BookingService(IUnitOfWork unitOfWork, HttpClient httpClient, IConfiguration configuration,
+            IVillaService villaService)
         {
             _unitOfWork = unitOfWork;
             _httpClient = httpClient;
             _configuration = configuration;
+            _villaService = villaService;
         }
 
         public void CreateBooking(Booking booking)
@@ -77,6 +80,16 @@ namespace InParadise.Application.Services.Implementation
             }
 
             return _unitOfWork.Booking.GetAll(includeProperties: IncludeProperties);
+        }
+
+        public Booking FinalBooking(Booking booking)
+        {
+            var villa = _villaService.GetVillaById(booking.VillaId);
+
+            booking.Status = SD.StatusPending;
+            booking.BookingDate = DateTime.Now;
+            booking.TotalCost = villa.Price * booking.Nights;
+            return booking;
         }
 
         public void UpdateStatus(int bookingId, string bookingStatus, bool isPay, int villaNumber = 0)

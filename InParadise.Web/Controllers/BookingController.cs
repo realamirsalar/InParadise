@@ -18,17 +18,20 @@ namespace InParadise.Web.Controllers
         private readonly IBookingService _bookingService;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly IPaymentService _paymentService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IVillaNumberService _villaNumberService;
         private readonly IVillaService _villaService;
 
         public BookingController(IBookingService bookingService, HttpClient httpClient, IConfiguration configuration,
+            IPaymentService paymentService,
             IVillaService villaService, IVillaNumberService villaNumberService,
             UserManager<ApplicationUser> userManager)
         {
             _bookingService = bookingService;
             _httpClient = httpClient;
             _configuration = configuration;
+            _paymentService = paymentService;
             _villaService = villaService;
             _villaNumberService = villaNumberService;
             _userManager = userManager;
@@ -86,13 +89,9 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> FinalizeBooking(Booking booking)
         {
-            var villa = _villaService.GetVillaById(booking.VillaId);
+            var finalBooking = _bookingService.FinalBooking(booking);
 
-            booking.Status = SD.StatusPending;
-            booking.BookingDate = DateTime.Now;
-            booking.TotalCost = villa.Price * booking.Nights;
-
-            if (!_villaService.IsVillaByAvailableDate(villa.Id, booking.Nights, booking.CheckInDate))
+            if (!_villaService.IsVillaByAvailableDate(finalBooking.VillaId, booking.Nights, booking.CheckInDate))
             {
                 ViewData["Error"] = "این ویلا قبلا رزرو شده است.";
                 return RedirectToAction(nameof(FinalizeBooking), new
@@ -103,33 +102,35 @@ namespace InParadise.Web.Controllers
                 });
             }
 
-            _bookingService.CreateBooking(booking);
+            _bookingService.CreateBooking(finalBooking);
 
             ////////////////////////////////////////////////////////////////////////////////////
 
 
             //var domain = Request.Scheme + @"://" + Request.Host.Value + @"/";
-            var requestData = new ZarinPalRequestDto()
-            {
-                //merchant_id = "00000000-0000-0000-0000-000000000000",
-                merchant_id = _configuration.GetValue<string>("ZarinPal:MerchantId"),
-                amount = (int)booking.TotalCost,
-                description = "این یک تست است ومن درحال آموزش هستم.",
-                //callback_url = $"{domain}booking/BookingConfirmation?bookingId={booking.Id}"
-                callback_url = Url.Action(action: "BookingVerify", controller: "Booking",
-                    values: null,
-                    protocol: Request.Scheme)
-            };
-            //کار این خط: ترجمه زبان سی‌شارپ به زبان بین‌المللی اینترنت (JSON)
-            var json = JsonSerializer.Serialize(requestData);
-            //گذاشتن متن داخل یک پاکت نامه استاندارد برای اداره پست 
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // آدرس سندباکس برای درخواست پرداخت
-            var requestUrl = _configuration.GetValue<string>("ZarinPal:PaymentRequestUrl");
-            var response =
-                await _httpClient.PostAsync(requestUrl, content);
-            var responseString = await response.Content.ReadAsStringAsync();
+
+            //var requestData = new ZarinPalRequestDto()
+            //{
+            //    //merchant_id = "00000000-0000-0000-0000-000000000000",
+            //    merchant_id = _configuration.GetValue<string>("ZarinPal:MerchantId"),
+            //    amount = (int)finalBooking.TotalCost,
+            //    description = "این یک تست است ومن درحال آموزش هستم.",
+            //    //callback_url = $"{domain}booking/BookingConfirmation?bookingId={booking.Id}"
+            //    callback_url = Url.Action(action: "BookingVerify", controller: "Booking",
+            //        values: null,
+            //        protocol: Request.Scheme)
+            //};
+            //کار این خط: ترجمه زبان سی‌شارپ به زبان بین‌المللی اینترنت (JSON)
+            //var json = JsonSerializer.Serialize(requestData);
+            ////گذاشتن متن داخل یک پاکت نامه استاندارد برای اداره پست 
+            //var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            //// آدرس سندباکس برای درخواست پرداخت
+            //var requestUrl = _configuration.GetValue<string>(SD.ZarinPalPaymentRequestUrl);
+            //var response =
+            //    await _httpClient.PostAsync(requestUrl, content);
+            //var responseString = await response.Content.ReadAsStringAsync();
 
             //تبدیل متن خام به یک سند منظم و قابل جستجو برای سی‌شارپ
             ///////////////////////////////////////////////////////////
@@ -142,26 +143,38 @@ namespace InParadise.Web.Controllers
             //using
             //به سی‌شارپ می‌گوید:
             //«به محض اینکه در انتهای این متد کارم با این متغیر تمام شد، بلافاصله آن را از حافظه پاک کن (زباله‌روبی کن) تا سیستم کند نشود.»
-            using var jsonDoc = JsonDocument.Parse(responseString);
+            //using var jsonDoc = JsonDocument.Parse(responseString);
             // باز کردن پوشه اصلی اطلاعات (بخش data) در نامه زرین‌پال
             //var dataNode = jsonDoc.RootElement.GetProperty("data");
 
 
             // (اصلاح شده): خواندن امنِ JSON برای جلوگیری از خطای برنامه در صورت ارور دادن زرین‌پال
-            if (jsonDoc.RootElement.TryGetProperty("data", out JsonElement dataNode) &&
-                dataNode.ValueKind == JsonValueKind.Object)
-            {
-                if (dataNode.TryGetProperty("code", out JsonElement codeNode) && codeNode.GetInt32() == 100)
-                {
-                    // دریافت Authority (کد شناسه پرداخت)
-                    string authority = dataNode.GetProperty("authority").GetString();
-                    _bookingService.UpdatePayment(booking.Id, authority, SD.ZarinPalGateway, null);
+            //if (jsonDoc.RootElement.TryGetProperty("data", out JsonElement dataNode) &&
+            //    dataNode.ValueKind == JsonValueKind.Object)
+            //{
+            //    if (dataNode.TryGetProperty("code", out JsonElement codeNode) && codeNode.GetInt32() == 100)
+            //    {
+            //        // دریافت Authority (کد شناسه پرداخت)
+            //        string authority = dataNode.GetProperty("authority").GetString();
+            //        _bookingService.UpdatePayment(booking.Id, authority, SD.ZarinPalGateway, null);
 
-                    // هدایت کاربر به درگاه پرداخت تستی
-                    var paymentGetWay = _configuration.GetValue<string>(SD.ZarinPalPaymentGatewayUrl);
-                    string paymentUrl = paymentGetWay + authority;
-                    return Redirect(paymentUrl);
-                }
+            //        // هدایت کاربر به درگاه پرداخت تستی
+            //        var paymentGetWay = _configuration.GetValue<string>(SD.ZarinPalPaymentGatewayUrl);
+            //        string paymentUrl = paymentGetWay + authority;
+            //        return Redirect(paymentUrl);
+            //    }
+            //}
+            var callBackUrl = Url.Action(action: "BookingVerify", controller: "Booking",
+                values: null,
+                protocol: Request.Scheme);
+
+
+            var requestResult =
+                await _paymentService.RequestZarinPalPayment(finalBooking.Id, (int)finalBooking.TotalCost, callBackUrl);
+
+            if (requestResult.IsSuccess)
+            {
+                return Redirect(requestResult.PaymentUrl);
             }
 
             return RedirectToAction(nameof(BookingFailed));
@@ -175,60 +188,73 @@ namespace InParadise.Web.Controllers
         [Authorize]
         public async Task<IActionResult> BookingVerify(string authority, string status)
         {
-            var booking = _bookingService.GetBookingByAuthority(authority);
-            if (booking == null)
-            {
-                return RedirectToAction(nameof(BookingFailed));
-            }
-
-            // زرین پال وضعیت را به صورت OK یا NOK برمی‌گرداند
             if (status != "OK")
             {
+                TempData["Error"] = "پرداخت توسط شما لغو شد.";
                 return RedirectToAction(nameof(BookingFailed));
             }
 
-            var verifyData = new ZarinPalVerifyDto()
+            var verifyResult = await _paymentService.ZarinPalVerifyData(authority);
+            if (verifyResult.IsSuccess)
             {
-                merchant_id = _configuration.GetValue<string>(SD.ZarinPalMerchantId),
-                amount = (long)booking.TotalCost,
-                authority = authority
-            };
-
-            var json = JsonSerializer.Serialize(verifyData);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-
-            // آدرس سندباکس برای تایید پرداخت
-            var verifyUrl = _configuration.GetValue<string>(SD.ZarinPalPaymentVerificationUrl);
-            var response =
-                await _httpClient.PostAsync(verifyUrl, content);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-
-            using var jsonDoc = JsonDocument.Parse(responseString);
-
-            if (jsonDoc.RootElement.TryGetProperty("data", out JsonElement dataNode) &&
-                dataNode.ValueKind == JsonValueKind.Object)
-            {
-                if (dataNode.TryGetProperty("code", out JsonElement codeNode))
-                {
-                    int code = codeNode.GetInt32();
-
-                    if (code == 100 || code == 101)
-                    {
-                        // (اصلاح شده): جلوگیری از خطای سرریز. ref_id باید string یا long باشد.
-                        string refId = dataNode.GetProperty("ref_id").GetInt64().ToString();
-
-                        // (نکته): فرض کردم پارامتر آخر UpdatePayment از نوع string است (که باید باشد)
-                        _bookingService.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
-                        _bookingService.UpdateStatus(booking.Id, SD.StatusApproved, true, 0);
-
-                        return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
-                    }
-                }
+                return RedirectToAction(nameof(BookingConfirmation), new { bookingId = verifyResult.BookingId });
             }
 
+            TempData["Error"] = verifyResult.ErrorMessage;
             return RedirectToAction(nameof(BookingFailed));
+            //if (booking == null)
+            //{
+            //    return RedirectToAction(nameof(BookingFailed));
+            //}
+
+            //// زرین پال وضعیت را به صورت OK یا NOK برمی‌گرداند
+            //if (status != "OK")
+            //{
+            //    return RedirectToAction(nameof(BookingFailed));
+            //}
+
+            //var verifyData = new ZarinPalVerifyDto()
+            //{
+            //    merchant_id = _configuration.GetValue<string>(SD.ZarinPalMerchantId),
+            //    amount = (long)booking.TotalCost,
+            //    authority = authority
+            //};
+
+            //var json = JsonSerializer.Serialize(verifyData);
+            //var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            //// آدرس سندباکس برای تایید پرداخت
+            //var verifyUrl = _configuration.GetValue<string>(SD.ZarinPalPaymentVerificationUrl);
+            //var response =
+            //    await _httpClient.PostAsync(verifyUrl, content);
+            //var responseString = await response.Content.ReadAsStringAsync();
+
+
+            //using var jsonDoc = JsonDocument.Parse(responseString);
+
+            //if (jsonDoc.RootElement.TryGetProperty("data", out JsonElement dataNode) &&
+            //    dataNode.ValueKind == JsonValueKind.Object)
+            //{
+            //    if (dataNode.TryGetProperty("code", out JsonElement codeNode))
+            //    {
+            //        int code = codeNode.GetInt32();
+
+            //        if (code == 100 || code == 101)
+            //        {
+            //            // (اصلاح شده): جلوگیری از خطای سرریز. ref_id باید string یا long باشد.
+            //            string refId = dataNode.GetProperty("ref_id").GetInt64().ToString();
+
+            //            // (نکته): فرض کردم پارامتر آخر UpdatePayment از نوع string است (که باید باشد)
+            //            _bookingService.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
+            //            _bookingService.UpdateStatus(booking.Id, SD.StatusApproved, true, 0);
+
+            //            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
+            //        }
+            //    }
+            //}
+
+            //return RedirectToAction(nameof(BookingFailed));
         }
 
         [Authorize]

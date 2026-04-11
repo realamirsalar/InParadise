@@ -23,6 +23,7 @@ namespace InParadise.Application.Common.Utility
         public const string ZarinPalMerchantId = "ZarinPal:MerchantId";
         public const string ZarinPalPaymentVerificationUrl = "ZarinPal:PaymentVerificationUrl";
         public const string ZarinPalPaymentGatewayUrl = "ZarinPal:PaymentGatewayUrl";
+        public const string ZarinPalPaymentRequestUrl = "ZarinPal:PaymentRequestUrl";
 
         public static int VillaRoomsAvailableCount(int villaId,
             List<VillaNumber> villaNumberList, DateOnly checkInDate, int nights,
