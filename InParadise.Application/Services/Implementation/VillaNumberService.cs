@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using InParadise.Application.Common.Utility;
 using InParadise.Application.Services.Interface;
 
 namespace InParadise.Application.Services.Implementation

@@ -11,5 +11,6 @@ namespace InParadise.Application.Services.Interface
         bool DeleteVilla(int id);
 
         IEnumerable<Villa> GetVillasAvailabilityByDate(int nights, DateOnly checkInDate);
+        bool IsVillaByAvailableDate(int villaId, int nights, DateOnly checkInDate);
     }
 }

@@ -44,7 +44,7 @@ namespace InParadise.Infrastructure.Repository
                 //Villa -- case sensitive
                 foreach (var includeItem in includeProperties.Split(new char[] { ',' }, StringSplitOptions.None))
                 {
-                    query = query.Include(includeItem);
+                    query = query.Include(includeItem.Trim());
                 }
             }
 
@@ -73,7 +73,7 @@ namespace InParadise.Infrastructure.Repository
                 //Villa -- case sensitive
                 foreach (var includeItem in includeProperties.Split(new char[] { ',' }, StringSplitOptions.None))
                 {
-                    query = query.Include(includeItem);
+                    query = query.Include(includeItem.Trim());
                 }
             }
 

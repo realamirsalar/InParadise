@@ -1,6 +1,7 @@
 ﻿using InParadise.Application.Common.DTO;
 using InParadise.Application.Common.Interfaces;
 using InParadise.Application.Common.Utility;
+using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using InParadise.Infrastructure.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -8,20 +9,29 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
 
 namespace InParadise.Web.Controllers
 {
     public class BookingController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookingService _bookingService;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IVillaNumberService _villaNumberService;
+        private readonly IVillaService _villaService;
 
-        public BookingController(IUnitOfWork unitOfWork, HttpClient httpClient, IConfiguration configuration)
+        public BookingController(IBookingService bookingService, HttpClient httpClient, IConfiguration configuration,
+            IVillaService villaService, IVillaNumberService villaNumberService,
+            UserManager<ApplicationUser> userManager)
         {
-            _unitOfWork = unitOfWork;
+            _bookingService = bookingService;
             _httpClient = httpClient;
             _configuration = configuration;
+            _villaService = villaService;
+            _villaNumberService = villaNumberService;
+            _userManager = userManager;
         }
 
         [Authorize]
@@ -31,8 +41,8 @@ namespace InParadise.Web.Controllers
             if (User.IsInRole(SD.AdminRole))
             {
                 bookings = string.IsNullOrEmpty(status)
-                    ? _unitOfWork.Booking.GetAll(includeProperties: "User,Villa")
-                    : _unitOfWork.Booking.GetAll(b => b.Status == status, includeProperties: "User,Villa");
+                    ? _bookingService.GetAllBooks(IncludeProperties: "User,Villa")
+                    : _bookingService.GetAllBooks(statusFilter: status, IncludeProperties: "User,Villa");
             }
             else
             {
@@ -40,9 +50,8 @@ namespace InParadise.Web.Controllers
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
                 bookings = string.IsNullOrEmpty(status)
-                    ? _unitOfWork.Booking.GetAll(b => b.UserId == userId, includeProperties: "User,Villa")
-                    : _unitOfWork.Booking.GetAll(b => b.UserId == userId && b.Status == status,
-                        includeProperties: "User,Villa");
+                    ? _bookingService.GetAllBooks(userId: userId, IncludeProperties: "User,Villa")
+                    : _bookingService.GetAllBooks(userId, status, "User,Villa");
             }
 
             return View(bookings);
@@ -55,12 +64,12 @@ namespace InParadise.Web.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ApplicationUser user = _unitOfWork.User.Get(u => u.Id == userId);
+            ApplicationUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
 
             Booking booking = new()
             {
                 VillaId = villaId,
-                Villa = _unitOfWork.VillaRepository.Get(v => v.Id == villaId, includeProperties: "VillaAmenity"),
+                Villa = _villaService.GetVillaById(villaId, includeProperties: "VillaAmenity"),
                 CheckInDate = checkInDate,
                 Nights = nights,
                 CheckOutDate = checkInDate.AddDays(nights),
@@ -77,20 +86,13 @@ namespace InParadise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> FinalizeBooking(Booking booking)
         {
-            var villa = _unitOfWork.VillaRepository.Get(v => v.Id == booking.VillaId);
+            var villa = _villaService.GetVillaById(booking.VillaId);
+
+            booking.Status = SD.StatusPending;
+            booking.BookingDate = DateTime.Now;
             booking.TotalCost = villa.Price * booking.Nights;
 
-
-            var villas = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
-            var villaNumbersList = _unitOfWork.VillaNumberRepository.GetAll().ToList();
-            var bookedVillas = _unitOfWork.Booking
-                .GetAll(b => b.Status == SD.StatusApproved || b.Status == SD.StatusCheckedIn).ToList();
-
-            int roomsAvailable =
-                SD.VillaRoomsAvailableCount(villa.Id, villaNumbersList, booking.CheckInDate, booking.Nights,
-                    bookedVillas);
-
-            if (roomsAvailable == 0)
+            if (!_villaService.IsVillaByAvailableDate(villa.Id, booking.Nights, booking.CheckInDate))
             {
                 ViewData["Error"] = "این ویلا قبلا رزرو شده است.";
                 return RedirectToAction(nameof(FinalizeBooking), new
@@ -101,12 +103,7 @@ namespace InParadise.Web.Controllers
                 });
             }
 
-            booking.Status = SD.StatusPending;
-            booking.BookingDate = DateTime.Now;
-
-            _unitOfWork.Booking.Insert(booking);
-            _unitOfWork.Save();
-
+            _bookingService.CreateBooking(booking);
 
             ////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,8 +155,8 @@ namespace InParadise.Web.Controllers
                 {
                     // دریافت Authority (کد شناسه پرداخت)
                     string authority = dataNode.GetProperty("authority").GetString();
-                    _unitOfWork.Booking.UpdatePayment(booking.Id, authority, SD.ZarinPalGateway, null);
-                    _unitOfWork.Save();
+                    _bookingService.UpdatePayment(booking.Id, authority, SD.ZarinPalGateway, null);
+
                     // هدایت کاربر به درگاه پرداخت تستی
                     var paymentGetWay = _configuration.GetValue<string>(SD.ZarinPalPaymentGatewayUrl);
                     string paymentUrl = paymentGetWay + authority;
@@ -178,7 +175,7 @@ namespace InParadise.Web.Controllers
         [Authorize]
         public async Task<IActionResult> BookingVerify(string authority, string status)
         {
-            var booking = _unitOfWork.Booking.Get(b => b.Authority == authority);
+            var booking = _bookingService.GetBookingByAuthority(authority);
             if (booking == null)
             {
                 return RedirectToAction(nameof(BookingFailed));
@@ -223,9 +220,8 @@ namespace InParadise.Web.Controllers
                         string refId = dataNode.GetProperty("ref_id").GetInt64().ToString();
 
                         // (نکته): فرض کردم پارامتر آخر UpdatePayment از نوع string است (که باید باشد)
-                        _unitOfWork.Booking.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
-                        _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusApproved, true, 0);
-                        _unitOfWork.Save();
+                        _bookingService.UpdatePayment(booking.Id, booking.Authority, SD.ZarinPalGateway, refId);
+                        _bookingService.UpdateStatus(booking.Id, SD.StatusApproved, true, 0);
 
                         return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
                     }
@@ -238,7 +234,7 @@ namespace InParadise.Web.Controllers
         [Authorize]
         public IActionResult BookingConfirmation(int bookingId)
         {
-            var bookingFromDb = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
+            var bookingFromDb = _bookingService.GetBookingById(bookingId, IncludeProperties: "User,Villa");
             return View(bookingFromDb);
         }
 
@@ -250,15 +246,7 @@ namespace InParadise.Web.Controllers
         [Authorize]
         public IActionResult BookingDetails(int bookingId)
         {
-            Booking booking = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
-
-            if (booking.VillaNumber == 0 && booking.Status == SD.StatusApproved)
-            {
-                var availableVillaNumber = AssignAvailableVillaNumberByVilla(booking.VillaId);
-
-                booking.VillaNumbers = _unitOfWork.VillaNumberRepository.GetAll(vn =>
-                    vn.VillaId == booking.VillaId && availableVillaNumber.Any(a => a == vn.NumberOfVilla)).ToList();
-            }
+            Booking booking = _bookingService.GetBookingWithAvailableVillaNumbers(bookingId);
 
             return View(booking);
         }
@@ -267,9 +255,8 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult CheckIn(Booking booking)
         {
-            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCheckedIn, true, booking.VillaNumber);
+            _bookingService.UpdateStatus(booking.Id, SD.StatusCheckedIn, true, booking.VillaNumber);
             TempData["Success"] = "ورود با موفقیت ثبت شد.";
-            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
@@ -277,9 +264,8 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult Checkout(Booking booking)
         {
-            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCompleted, true, booking.VillaNumber);
+            _bookingService.UpdateStatus(booking.Id, SD.StatusCompleted, true, booking.VillaNumber);
             TempData["Success"] = "روزو با موفقیت تکمیل شد.";
-            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
@@ -287,32 +273,11 @@ namespace InParadise.Web.Controllers
         [Authorize(Roles = SD.AdminRole)]
         public IActionResult CancelBooking(Booking booking)
         {
-            _unitOfWork.Booking.UpdateStatus(booking.Id, SD.StatusCancelled, true, 0);
+            _bookingService.UpdateStatus(booking.Id, SD.StatusCancelled, true, 0);
             TempData["Error"] = "روزو با موقیت کنسل شد.";
-            _unitOfWork.Save();
             return RedirectToAction(nameof(BookingDetails), new { bookingId = booking.Id });
         }
 
-
-        private List<int> AssignAvailableVillaNumberByVilla(int villaId)
-        {
-            List<int> availableVillaNumbers = new();
-
-            var villaNumberes = _unitOfWork.VillaNumberRepository.GetAll(vn => vn.VillaId == villaId);
-
-            var checkedInVilla =
-                _unitOfWork.Booking.GetAll(b => b.VillaId == villaId && b.Status == SD.StatusCheckedIn)
-                    .Select(b => b.VillaNumber);
-            foreach (var villaNumber in villaNumberes)
-            {
-                if (!checkedInVilla.Contains(villaNumber.NumberOfVilla))
-                {
-                    availableVillaNumbers.Add(villaNumber.NumberOfVilla);
-                }
-            }
-
-            return availableVillaNumbers;
-        }
 
         #region API Call
 

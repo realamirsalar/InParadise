@@ -22,52 +22,5 @@ namespace InParadise.Infrastructure.Repository
         {
             this._db.Bookings.Update(entity);
         }
-
-        public void UpdateStatus(int bookingId, string bookingStatus, bool isPay, int villaNumber = 0)
-        {
-            var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
-            if (bookingFromDb != null)
-            {
-                bookingFromDb.Status = bookingStatus;
-                if (bookingStatus == SD.StatusCheckedIn)
-                {
-                    bookingFromDb.VillaNumber = villaNumber;
-                    bookingFromDb.ActualCheckInDate = DateTime.Now;
-                }
-
-                if (bookingStatus == SD.StatusCompleted)
-                {
-                    bookingFromDb.ActualCheckOutDate = DateTime.Now;
-                }
-
-                if (isPay == true)
-                {
-                    bookingFromDb.IsPaymentSuccessful = isPay;
-                }
-            }
-        }
-
-        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, string? refId)
-        {
-            var bookingFromDb = _db.Bookings.SingleOrDefault(b => b.Id == bookingId);
-            if (bookingFromDb != null)
-            {
-                if (!string.IsNullOrEmpty(authority))
-                {
-                    bookingFromDb.Authority = authority;
-                }
-
-                if (!string.IsNullOrEmpty(paymentGetWay))
-                {
-                    bookingFromDb.PaymentGateway = paymentGetWay;
-                }
-
-                if (!string.IsNullOrEmpty(refId))
-                {
-                    bookingFromDb.RefId = refId;
-                    bookingFromDb.PaymentDate = DateTime.Now;
-                }
-            }
-        }
     }
 }

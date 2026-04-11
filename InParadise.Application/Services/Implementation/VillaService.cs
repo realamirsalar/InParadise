@@ -143,5 +143,18 @@ namespace InParadise.Application.Services.Implementation
 
             return villaList;
         }
+
+        public bool IsVillaByAvailableDate(int villaId, int nights, DateOnly checkInDate)
+        {
+            var villas = _UnitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            var villaNumbersList = _UnitOfWork.VillaNumberRepository.GetAll().ToList();
+            var bookedVillas = _UnitOfWork.Booking
+                .GetAll(b => b.Status == SD.StatusApproved || b.Status == SD.StatusCheckedIn).ToList();
+
+            int roomsAvailable =
+                SD.VillaRoomsAvailableCount(villaId, villaNumbersList, checkInDate, nights,
+                    bookedVillas);
+            return roomsAvailable > 0;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using InParadise.Application.Common.Interfaces;
+using InParadise.Application.Common.Utility;
 using InParadise.Application.Services.Interface;
 using InParadise.Domain.Entities;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace InParadise.Application.Services.Implementation
 {
-    public class BookingService : IBookingsService
+    public class BookingService : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly HttpClient _httpClient;
@@ -30,6 +31,26 @@ namespace InParadise.Application.Services.Implementation
         public Booking GetBookingById(int bookingId, string? IncludeProperties = null)
         {
             return _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: IncludeProperties);
+        }
+
+        public Booking GetBookingWithAvailableVillaNumbers(int bookingId)
+        {
+            Booking booking = _unitOfWork.Booking.Get(b => b.Id == bookingId, includeProperties: "User,Villa");
+
+            if (booking.VillaNumber == 0 && booking.Status == SD.StatusApproved)
+            {
+                var availableVillaNumber = AssignAvailableVillaNumberByVilla(booking.VillaId);
+
+                booking.VillaNumbers = _unitOfWork.VillaNumberRepository.GetAll(vn =>
+                    vn.VillaId == booking.VillaId && availableVillaNumber.Any(a => a == vn.NumberOfVilla)).ToList();
+            }
+
+            return booking;
+        }
+
+        public Booking GetBookingByAuthority(string authority)
+        {
+            return _unitOfWork.Booking.Get(b => b.Authority == authority);
         }
 
         public IEnumerable<Booking> GetAllBooks(string userId, string? statusFilter = "",
@@ -56,6 +77,77 @@ namespace InParadise.Application.Services.Implementation
             }
 
             return _unitOfWork.Booking.GetAll(includeProperties: IncludeProperties);
+        }
+
+        public void UpdateStatus(int bookingId, string bookingStatus, bool isPay, int villaNumber = 0)
+        {
+            var bookingFromDb = _unitOfWork.Booking.Get(b => b.Id == bookingId, tracked: true);
+            if (bookingFromDb != null)
+            {
+                bookingFromDb.Status = bookingStatus;
+                if (bookingStatus == SD.StatusCheckedIn)
+                {
+                    bookingFromDb.VillaNumber = villaNumber;
+                    bookingFromDb.ActualCheckInDate = DateTime.Now;
+                }
+
+                if (bookingStatus == SD.StatusCompleted)
+                {
+                    bookingFromDb.ActualCheckOutDate = DateTime.Now;
+                }
+
+                if (isPay == true)
+                {
+                    bookingFromDb.IsPaymentSuccessful = isPay;
+                }
+            }
+
+            _unitOfWork.Save();
+        }
+
+        public void UpdatePayment(int bookingId, string authority, string paymentGetWay, string? refId)
+        {
+            var bookingFromDb = _unitOfWork.Booking.Get(b => b.Id == bookingId, tracked: true);
+            if (bookingFromDb != null)
+            {
+                if (!string.IsNullOrEmpty(authority))
+                {
+                    bookingFromDb.Authority = authority;
+                }
+
+                if (!string.IsNullOrEmpty(paymentGetWay))
+                {
+                    bookingFromDb.PaymentGateway = paymentGetWay;
+                }
+
+                if (!string.IsNullOrEmpty(refId))
+                {
+                    bookingFromDb.RefId = refId;
+                    bookingFromDb.PaymentDate = DateTime.Now;
+                }
+            }
+
+            _unitOfWork.Save();
+        }
+
+        public List<int> AssignAvailableVillaNumberByVilla(int villaId)
+        {
+            List<int> availableVillaNumbers = new();
+
+            var villaNumberes = _unitOfWork.VillaNumberRepository.GetAll(vn => vn.VillaId == villaId);
+
+            var checkedInVilla =
+                _unitOfWork.Booking.GetAll(b => b.VillaId == villaId && b.Status == SD.StatusCheckedIn)
+                    .Select(b => b.VillaNumber);
+            foreach (var villaNumber in villaNumberes)
+            {
+                if (!checkedInVilla.Contains(villaNumber.NumberOfVilla))
+                {
+                    availableVillaNumbers.Add(villaNumber.NumberOfVilla);
+                }
+            }
+
+            return availableVillaNumbers;
         }
     }
 }
