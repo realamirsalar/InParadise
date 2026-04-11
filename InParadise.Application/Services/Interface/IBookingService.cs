@@ -8,6 +8,7 @@ namespace InParadise.Application.Services.Interface
 {
     public interface IBookingService
     {
+        Task<Booking> SetupNewBookingAsync(int villaId, string userId, DateOnly checkInDate, int nights);
         void CreateBooking(Booking booking);
         Booking GetBookingById(int bookingId, string? IncludeProperties = null);
         Booking GetBookingWithAvailableVillaNumbers(int bookingId);

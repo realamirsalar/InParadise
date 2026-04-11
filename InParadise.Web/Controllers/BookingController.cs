@@ -16,21 +16,17 @@ namespace InParadise.Web.Controllers
     public class BookingController : Controller
     {
         private readonly IBookingService _bookingService;
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
         private readonly IPaymentService _paymentService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IVillaNumberService _villaNumberService;
         private readonly IVillaService _villaService;
 
-        public BookingController(IBookingService bookingService, HttpClient httpClient, IConfiguration configuration,
+        public BookingController(IBookingService bookingService,
             IPaymentService paymentService,
             IVillaService villaService, IVillaNumberService villaNumberService,
             UserManager<ApplicationUser> userManager)
         {
             _bookingService = bookingService;
-            _httpClient = httpClient;
-            _configuration = configuration;
             _paymentService = paymentService;
             _villaService = villaService;
             _villaNumberService = villaNumberService;
@@ -43,18 +39,14 @@ namespace InParadise.Web.Controllers
             IEnumerable<Booking> bookings;
             if (User.IsInRole(SD.AdminRole))
             {
-                bookings = string.IsNullOrEmpty(status)
-                    ? _bookingService.GetAllBooks(IncludeProperties: "User,Villa")
-                    : _bookingService.GetAllBooks(statusFilter: status, IncludeProperties: "User,Villa");
+                bookings = _bookingService.GetAllBooks(statusFilter: status, IncludeProperties: "User,Villa");
             }
             else
             {
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
-                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                bookings = string.IsNullOrEmpty(status)
-                    ? _bookingService.GetAllBooks(userId: userId, IncludeProperties: "User,Villa")
-                    : _bookingService.GetAllBooks(userId, status, "User,Villa");
+                bookings = _bookingService.GetAllBooks(userId, status, "User,Villa");
             }
 
             return View(bookings);
@@ -62,26 +54,11 @@ namespace InParadise.Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult FinalizeBooking(int villaId, int nights, DateOnly checkInDate)
+        public async Task<IActionResult> FinalizeBooking(int villaId, int nights, DateOnly checkInDate)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            ApplicationUser user = _userManager.FindByIdAsync(userId).GetAwaiter().GetResult();
-
-            Booking booking = new()
-            {
-                VillaId = villaId,
-                Villa = _villaService.GetVillaById(villaId, includeProperties: "VillaAmenity"),
-                CheckInDate = checkInDate,
-                Nights = nights,
-                CheckOutDate = checkInDate.AddDays(nights),
-                UserId = userId,
-                Phone = user.PhoneNumber,
-                Email = user.Email,
-                Name = user.Name
-            };
-            booking.TotalCost = booking.Villa.Price * nights;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var booking = await _bookingService.SetupNewBookingAsync(villaId, userId, checkInDate, nights);
             return View(booking);
         }
 
